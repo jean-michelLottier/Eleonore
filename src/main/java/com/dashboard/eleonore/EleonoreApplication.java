@@ -19,16 +19,16 @@ public class EleonoreApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EleonoreApplication.class);
 
-    @Value("${threadpooltaskexecutor.corepoolsize}")
+    @Value("${spring.task.execution.pool.core-size}")
     private String corePoolSize;
 
-    @Value("${threadpooltaskexecutor.maxpoolsize}")
+    @Value("${spring.task.execution.pool.max-size}")
     private String maxPoolSize;
 
-    @Value("${threadpooltaskexecutor.queuecapacity}")
+    @Value("${spring.task.execution.pool.queue-capacity}")
     private String queueCapacity;
 
-    @Value("${threadpooltaskexecutor.threadnameprefix}")
+    @Value("${spring.task.execution.thread-name-prefix}")
     private String threadNamePrefix;
 
     public static void main(String[] args) {
