@@ -18,6 +18,7 @@
         <java.version>11</java.version>
         <redis.version>2.1.8.RELEASE</redis.version>
         <jedis.version>2.9.3</jedis.version>
+        <sonar.version>3.6.0.1398</sonar.version>
     </properties>
 
     <dependencies>
@@ -84,7 +85,25 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar.version}</version>
+            </plugin>
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Optional URL to server. Default value is http://localhost:9000 -->
+                <sonar.host.url>http://sonarqube:9000</sonar.host.url>
+                <sonar.projectKey>eleonore</sonar.projectKey>
+            </properties>
+        </profile>
+    </profiles>
 </project>

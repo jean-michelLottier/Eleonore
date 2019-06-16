@@ -1,6 +1,5 @@
 package com.dashboard.eleonore.http;
 
-import com.dashboard.eleonore.sonar.service.SonarOT;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
