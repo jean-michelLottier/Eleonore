@@ -9,13 +9,16 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericToStringSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 import org.springframework.session.web.http.HeaderHttpSessionIdResolver;
 import org.springframework.session.web.http.HttpSessionIdResolver;
 
 @Configuration
-@EnableRedisHttpSession
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 60*30)
 @PropertySource("classpath:application.properties")
 public class HttpSessionConfig extends AbstractHttpSessionApplicationInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpSessionConfig.class);
@@ -49,6 +52,10 @@ public class HttpSessionConfig extends AbstractHttpSessionApplicationInitializer
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         var template = new RedisTemplate<String, Object>();
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new GenericToStringSerializer<>(Object.class));
+        template.setHashValueSerializer(new JdkSerializationRedisSerializer());
+        template.setValueSerializer(new JdkSerializationRedisSerializer());
         template.setConnectionFactory(jedisConnectionFactory());
 
         return template;

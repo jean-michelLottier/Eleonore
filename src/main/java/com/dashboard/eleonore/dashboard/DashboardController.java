@@ -1,7 +1,7 @@
 package com.dashboard.eleonore.dashboard;
 
 import com.dashboard.eleonore.dashboard.exception.DashboardNotFoundException;
-import com.dashboard.eleonore.dashboard.repository.Dashboard;
+import com.dashboard.eleonore.dashboard.repository.entity.Dashboard;
 import com.dashboard.eleonore.dashboard.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

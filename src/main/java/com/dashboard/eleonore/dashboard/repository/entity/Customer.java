@@ -1,12 +1,16 @@
-package com.dashboard.eleonore.dashboard.repository;
+package com.dashboard.eleonore.dashboard.repository.entity;
 
+import com.dashboard.eleonore.profile.repository.entity.ProfileType;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
-public class Customer {
+public class Customer implements Serializable {
+    private static final long serialVersionUID = -6979305705417452745L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,8 +18,8 @@ public class Customer {
     @Column(name = "dashboard_id", nullable = false)
     private Long dashboardId;
 
-    @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+    @Column(name = "profile_id", nullable = false)
+    private Long profileId;
 
     @Column(name = "owner")
     private boolean owner;
@@ -25,7 +29,7 @@ public class Customer {
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private CustomerType type;
+    private ProfileType type;
 
     public Long getId() {
         return id;
@@ -43,12 +47,12 @@ public class Customer {
         this.dashboardId = dashboardId;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public Long getProfileId() {
+        return profileId;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setProfileId(Long profileId) {
+        this.profileId = profileId;
     }
 
     public boolean isOwner() {
@@ -67,11 +71,11 @@ public class Customer {
         this.editable = editable;
     }
 
-    public CustomerType getType() {
+    public ProfileType getType() {
         return type;
     }
 
-    public void setType(CustomerType type) {
+    public void setType(ProfileType type) {
         this.type = type;
     }
 }
