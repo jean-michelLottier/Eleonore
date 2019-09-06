@@ -1,6 +1,6 @@
 package com.dashboard.eleonore.dashboard.service;
 
-import com.dashboard.eleonore.dashboard.repository.Dashboard;
+import com.dashboard.eleonore.dashboard.repository.entity.Dashboard;
 
 import java.util.Optional;
 
