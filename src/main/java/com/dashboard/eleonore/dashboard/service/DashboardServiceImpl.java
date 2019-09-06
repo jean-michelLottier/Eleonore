@@ -1,6 +1,6 @@
 package com.dashboard.eleonore.dashboard.service;
 
-import com.dashboard.eleonore.dashboard.repository.Dashboard;
+import com.dashboard.eleonore.dashboard.repository.entity.Dashboard;
 import com.dashboard.eleonore.dashboard.repository.DashboardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

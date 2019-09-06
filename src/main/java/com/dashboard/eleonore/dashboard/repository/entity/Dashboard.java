@@ -1,4 +1,4 @@
-package com.dashboard.eleonore.dashboard.repository;
+package com.dashboard.eleonore.dashboard.repository.entity;
 
 import lombok.Data;
 
