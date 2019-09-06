@@ -1,5 +1,6 @@
 package com.dashboard.eleonore;
 
+import com.dashboard.eleonore.profile.ProfileScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,8 @@ public class EleonoreApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(EleonoreApplication.class, args);
+
+        ProfileScheduler.getInstance();
     }
 
     @Bean

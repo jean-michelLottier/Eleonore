@@ -54,6 +54,11 @@ public interface ProfileService {
     boolean isTokenValid(String authToken);
 
     /**
+     * Method to clean invalid tokens still existing in database.
+     */
+    void cleanInvalidToken();
+
+    /**
      * Method to save a profile in database.
      *
      * @param profileDTO
