@@ -1,47 +1,25 @@
-package com.dashboard.eleonore.dashboard.repository.entity;
+package com.dashboard.eleonore.dashboard.dto;
 
-import com.dashboard.eleonore.dashboard.dto.CustomerDTO;
+import com.dashboard.eleonore.dashboard.repository.entity.Customer;
 import com.dashboard.eleonore.profile.repository.entity.ProfileType;
-import lombok.Data;
 
-import javax.persistence.*;
-import java.io.Serializable;
-
-@Data
-@Entity
-public class Customer implements Serializable {
-    private static final long serialVersionUID = -6979305705417452745L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CustomerDTO {
     private Long id;
-
-    @Column(name = "dashboard_id", nullable = false)
     private Long dashboardId;
-
-    @Column(name = "profile_id", nullable = false)
     private Long profileId;
-
-    @Column(name = "owner")
     private boolean owner;
-
-    @Column(name = "editable")
     private boolean editable;
-
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
     private ProfileType type;
 
-    public Customer() {
-    }
+    public CustomerDTO(){}
 
-    public Customer(CustomerDTO customerDTO) {
-        this.id = customerDTO.getId();
-        this.dashboardId = customerDTO.getDashboardId();
-        this.profileId = customerDTO.getProfileId();
-        this.owner = customerDTO.isOwner();
-        this.editable = customerDTO.isEditable();
-        this.type = customerDTO.getType();
+    public CustomerDTO(Customer customer) {
+        this.id = customer.getId();
+        this.dashboardId = customer.getDashboardId();
+        this.profileId = customer.getProfileId();
+        this.owner = customer.isOwner();
+        this.editable = customer.isEditable();
+        this.type = customer.getType();
     }
 
     public Long getId() {

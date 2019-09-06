@@ -1,35 +1,26 @@
-package com.dashboard.eleonore.dashboard.repository.entity;
+package com.dashboard.eleonore.dashboard.dto;
 
-import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
-import lombok.Data;
+import com.dashboard.eleonore.component.dto.ElementDTO;
+import com.dashboard.eleonore.dashboard.repository.entity.Dashboard;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Data
-@Entity
-public class Dashboard {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class DashboardDTO {
     private Long id;
-
-    @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate;
-
-    @Column(name = "modified_date", nullable = false)
     private LocalDateTime modifiedDate;
+    private List<ElementDTO> elements;
 
-    public Dashboard() {
+    public DashboardDTO() {
     }
 
-    public Dashboard(DashboardDTO dashboardDTO) {
-        this.id = dashboardDTO.getId();
-        this.name = dashboardDTO.getName();
-        this.createdDate = dashboardDTO.getCreatedDate();
-        this.modifiedDate = dashboardDTO.getModifiedDate();
+    public DashboardDTO(Dashboard dashboard) {
+        this.id = dashboard.getId();
+        this.name = dashboard.getName();
+        this.createdDate = dashboard.getCreatedDate();
+        this.modifiedDate = dashboard.getModifiedDate();
     }
 
     public Long getId() {
@@ -62,5 +53,13 @@ public class Dashboard {
 
     public void setModifiedDate(LocalDateTime modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public List<ElementDTO> getElements() {
+        return elements;
+    }
+
+    public void setElements(List<ElementDTO> elements) {
+        this.elements = elements;
     }
 }
