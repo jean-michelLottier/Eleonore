@@ -2,6 +2,7 @@ package com.dashboard.eleonore.profile.service;
 
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
 import com.dashboard.eleonore.profile.dto.UserDTO;
+import com.dashboard.eleonore.profile.factory.ProfileFactory;
 import com.dashboard.eleonore.profile.repository.AuthTokenRepository;
 import com.dashboard.eleonore.profile.repository.AuthenticationRepository;
 import com.dashboard.eleonore.profile.repository.UserRepository;
@@ -20,6 +21,7 @@ import java.util.Optional;
 @Component
 public class ProfileServiceImpl implements ProfileService {
     public static final String AUTH_TOKEN_KEY = "eleonore_auth_token";
+    public static final long AUTH_TOKEN_TIMEOUT = 60l * 30;
 
     @Autowired
     private AuthenticationRepository authenticationRepository;
@@ -69,6 +71,22 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    public boolean isTokenValid(String authToken) {
+        if (StringUtils.isEmpty(authToken)) {
+            return false;
+        }
+
+        Optional<AuthToken> optionalAuthToken = this.authTokenRepository.findByToken(authToken);
+        boolean tokenValid = false;
+        if (optionalAuthToken.isPresent()
+                && optionalAuthToken.get().getCreatedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isAfter(LocalDateTime.now())) {
+            tokenValid = true;
+        }
+
+        return tokenValid;
+    }
+
+    @Override
     public ProfileDTO saveProfile(ProfileDTO profileDTO, ProfileType profileType) {
         ProfileDTO savedProfileDTO = null;
         switch (profileType) {
@@ -101,6 +119,21 @@ public class ProfileServiceImpl implements ProfileService {
             case ORGANIZATION:
             default:
         }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<ProfileDTO> getProfile(String authToken) {
+        if (StringUtils.isEmpty(authToken)) {
+            return Optional.empty();
+        }
+
+        Optional<Authentication> optionalAuth = this.authenticationRepository.findByToken(authToken);
+        if (optionalAuth.isPresent()) {
+            Authentication authentication = optionalAuth.get();
+            return Optional.ofNullable(ProfileFactory.getProfile(authentication));
+        }
+
         return Optional.empty();
     }
 }

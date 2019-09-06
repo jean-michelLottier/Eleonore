@@ -7,7 +7,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@Entity(name = "token")
+@Entity
+@Table(name = "token")
 public class AuthToken implements Serializable {
     private static final long serialVersionUID = -1967944556134225181L;
 

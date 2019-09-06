@@ -13,4 +13,7 @@ public interface AuthenticationRepository extends JpaRepository<Authentication, 
 
     @Query("select a from Authentication a where a.login = :login and a.password = :password")
     Optional<Authentication> findByLoginPassword(@Param("login") String login, @Param("password") String password);
+
+    @Query("select a from Authentication a where a.id = (select t.authenticationId from AuthToken t where t.token = :token)")
+    Optional<Authentication> findByToken(@Param("token") String token);
 }

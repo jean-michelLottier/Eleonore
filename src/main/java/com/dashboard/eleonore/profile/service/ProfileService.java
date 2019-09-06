@@ -1,11 +1,9 @@
 package com.dashboard.eleonore.profile.service;
 
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
-import com.dashboard.eleonore.profile.dto.UserDTO;
 import com.dashboard.eleonore.profile.repository.entity.AuthToken;
 import com.dashboard.eleonore.profile.repository.entity.Authentication;
 import com.dashboard.eleonore.profile.repository.entity.ProfileType;
-import com.dashboard.eleonore.profile.repository.entity.User;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,18 +12,66 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ProfileService {
+    /**
+     * Method to check if the profile authentication is valid.
+     *
+     * @param authentication
+     * @return {@code true} if authentication valid, otherwise {@code false}
+     */
     boolean isValidAuthentication(Authentication authentication);
 
+    /**
+     * Method to get authentication information.
+     *
+     * @param login
+     * @param password
+     * @return
+     */
     Optional<Authentication> getAuthentication(String login, String password);
 
+    /**
+     * Method to save the authentication token in database.
+     *
+     * @param authentication
+     * @param token
+     * @return
+     */
     Optional<AuthToken> saveToken(Authentication authentication, String token);
 
+    /**
+     * Method to delete an authentication token in database.
+     *
+     * @param token
+     */
     void deleteToken(String token);
 
+    /**
+     * Method to check if a given authentication token is valid.
+     *
+     * @param authToken
+     * @return {@code true} if the authentication token is valid, otherwise {@code false}
+     */
+    boolean isTokenValid(String authToken);
+
+    /**
+     * Method to save a profile in database.
+     *
+     * @param profileDTO
+     * @param profileType
+     * @return
+     */
     ProfileDTO saveProfile(ProfileDTO profileDTO, ProfileType profileType);
 
     Optional<ProfileDTO> getProfile(Long id, ProfileType profileType);
 
+    Optional<ProfileDTO> getProfile(String authToken);
+
+    /**
+     * Method to generate an authentication token for each session open.
+     *
+     * @param authentication
+     * @return
+     */
     static String generateToken(Authentication authentication) {
         StringBuilder content = new StringBuilder("eleonore_token");
         content.append("/").append(authentication.getLogin())
