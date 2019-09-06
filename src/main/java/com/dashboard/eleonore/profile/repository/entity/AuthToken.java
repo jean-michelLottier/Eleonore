@@ -25,6 +25,9 @@ public class AuthToken implements Serializable {
     @Column(name = "created_date")
     private LocalDateTime createdDateTime;
 
+    @Column(name = "modified_date")
+    private LocalDateTime modifiedDateTime;
+
     public Long getId() {
         return id;
     }
@@ -55,5 +58,13 @@ public class AuthToken implements Serializable {
 
     public void setCreatedDateTime(LocalDateTime createdDateTime) {
         this.createdDateTime = createdDateTime;
+    }
+
+    public LocalDateTime getModifiedDateTime() {
+        return modifiedDateTime;
+    }
+
+    public void setModifiedDateTime(LocalDateTime modifiedDateTime) {
+        this.modifiedDateTime = modifiedDateTime;
     }
 }

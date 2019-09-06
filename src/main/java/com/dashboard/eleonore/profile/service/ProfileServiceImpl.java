@@ -10,18 +10,24 @@ import com.dashboard.eleonore.profile.repository.entity.AuthToken;
 import com.dashboard.eleonore.profile.repository.entity.Authentication;
 import com.dashboard.eleonore.profile.repository.entity.ProfileType;
 import com.dashboard.eleonore.profile.repository.entity.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class ProfileServiceImpl implements ProfileService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileServiceImpl.class);
     public static final String AUTH_TOKEN_KEY = "eleonore_auth_token";
-    public static final long AUTH_TOKEN_TIMEOUT = 60l * 30;
+    public static final long AUTH_TOKEN_TIMEOUT = 30l;
 
     @Autowired
     private AuthenticationRepository authenticationRepository;
@@ -56,6 +62,7 @@ public class ProfileServiceImpl implements ProfileService {
         authToken.setAuthenticationId(authentication.getId());
         authToken.setToken(token);
         authToken.setCreatedDateTime(LocalDateTime.now());
+        authToken.setModifiedDateTime(authToken.getCreatedDateTime());
 
         return Optional.of(this.authTokenRepository.save(authToken));
     }
@@ -78,9 +85,18 @@ public class ProfileServiceImpl implements ProfileService {
 
         Optional<AuthToken> optionalAuthToken = this.authTokenRepository.findByToken(authToken);
         boolean tokenValid = false;
-        if (optionalAuthToken.isPresent()
-                && optionalAuthToken.get().getCreatedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isAfter(LocalDateTime.now())) {
-            tokenValid = true;
+        if (optionalAuthToken.isPresent()) {
+            AuthToken token = optionalAuthToken.get();
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            if (token.getModifiedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isAfter(currentDateTime)) {
+                tokenValid = true;
+                // If the token is soon expired then the modified date is updated
+                if (token.getModifiedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isBefore(currentDateTime.plusMinutes(5l))) {
+                    LOGGER.info("eleonore - Token {} almost expired, its modified date is updated", token.getId());
+                    token.setModifiedDateTime(currentDateTime);
+                    this.authTokenRepository.save(token);
+                }
+            }
         }
 
         return tokenValid;
@@ -135,5 +151,18 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public void cleanInvalidToken() {
+        List<AuthToken> removalAuthTokens = this.authTokenRepository.findAll()
+                .stream()
+                .filter(token -> token.getModifiedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isBefore(LocalDateTime.now()))
+                .collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(removalAuthTokens)) {
+            LOGGER.info("eleonore - Auto clean {} invalid authentication tokens", removalAuthTokens.size());
+            this.authTokenRepository.deleteAll(removalAuthTokens);
+        }
     }
 }
