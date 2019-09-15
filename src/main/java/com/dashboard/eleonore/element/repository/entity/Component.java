@@ -1,6 +1,6 @@
-package com.dashboard.eleonore.component.repository.entity;
+package com.dashboard.eleonore.element.repository.entity;
 
-import com.dashboard.eleonore.component.dto.ComponentDTO;
+import com.dashboard.eleonore.element.dto.ComponentDTO;
 import lombok.Data;
 
 import javax.persistence.*;

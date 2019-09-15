@@ -1,6 +1,7 @@
-package com.dashboard.eleonore.component.service;
+package com.dashboard.eleonore.element.service;
 
-import com.dashboard.eleonore.component.dto.ElementDTO;
+import com.dashboard.eleonore.element.dto.ElementDTO;
+import com.dashboard.eleonore.element.repository.entity.ElementType;
 
 import java.util.List;
 
@@ -27,4 +28,10 @@ public interface ElementService {
      * @return
      */
     List<ElementDTO> getElements(Long dashboardId);
+
+    ElementDTO saveElement(Long dashboardId, ElementDTO elementDTO);
+
+    void deleteElement(Long dashboardId, ElementDTO elementDTO);
+
+    void deleteElement(Long profileId, Long dashboardId, Long elementId, ElementType elementType);
 }

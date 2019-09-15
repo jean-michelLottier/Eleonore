@@ -1,10 +1,14 @@
-package com.dashboard.eleonore.component.repository.entity;
+package com.dashboard.eleonore.element.repository.entity;
 
-import com.dashboard.eleonore.component.dto.SonarDTO;
+import com.dashboard.eleonore.element.dto.SonarDTO;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
+import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
@@ -23,6 +27,9 @@ public class Sonar {
     @Column(name = "project_key")
     private String projectKey;
 
+    @OneToMany(mappedBy = "sonar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SonarMetric> metrics;
+
     public Sonar() {
     }
 
@@ -31,6 +38,10 @@ public class Sonar {
         this.url = sonarDTO.getUrl();
         this.projectName = sonarDTO.getProjectName();
         this.projectKey = sonarDTO.getProjectKey();
+        if (!CollectionUtils.isEmpty(sonarDTO.getSonarMetrics())) {
+            this.metrics = sonarDTO.getSonarMetrics().stream().map(SonarMetric::new).collect(Collectors.toSet());
+            this.metrics.forEach(sonarMetric -> sonarMetric.setSonar(this));
+        }
     }
 
     public Long getId() {
@@ -63,5 +74,18 @@ public class Sonar {
 
     public void setProjectKey(String projectKey) {
         this.projectKey = projectKey;
+    }
+
+    public Set<SonarMetric> getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(Set<SonarMetric> metrics) {
+        this.metrics = metrics;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(url, projectName, projectKey);
     }
 }

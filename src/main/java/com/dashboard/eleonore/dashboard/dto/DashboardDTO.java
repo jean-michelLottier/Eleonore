@@ -1,6 +1,6 @@
 package com.dashboard.eleonore.dashboard.dto;
 
-import com.dashboard.eleonore.component.dto.ElementDTO;
+import com.dashboard.eleonore.element.dto.ElementDTO;
 import com.dashboard.eleonore.dashboard.repository.entity.Dashboard;
 
 import java.time.LocalDateTime;

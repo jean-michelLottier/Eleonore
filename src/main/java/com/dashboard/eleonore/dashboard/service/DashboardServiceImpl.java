@@ -1,6 +1,6 @@
 package com.dashboard.eleonore.dashboard.service;
 
-import com.dashboard.eleonore.component.service.ElementService;
+import com.dashboard.eleonore.element.service.ElementService;
 import com.dashboard.eleonore.dashboard.dto.CustomerDTO;
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import com.dashboard.eleonore.dashboard.repository.CustomerRepository;

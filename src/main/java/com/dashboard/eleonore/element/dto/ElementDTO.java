@@ -1,6 +1,6 @@
-package com.dashboard.eleonore.component.dto;
+package com.dashboard.eleonore.element.dto;
 
-import com.dashboard.eleonore.component.repository.entity.ElementType;
+import com.dashboard.eleonore.element.repository.entity.ElementType;
 
 import java.io.Serializable;
 
