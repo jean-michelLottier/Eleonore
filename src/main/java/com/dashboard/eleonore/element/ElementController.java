@@ -2,7 +2,6 @@ package com.dashboard.eleonore.element;
 
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import com.dashboard.eleonore.dashboard.service.DashboardService;
-import com.dashboard.eleonore.element.dto.ElementDTO;
 import com.dashboard.eleonore.element.dto.SonarDTO;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.service.ElementService;
@@ -32,6 +31,14 @@ public class ElementController {
     @Autowired
     private DashboardService dashboardService;
 
+    /**
+     * Method to add a Sonar element in a dashboard
+     *
+     * @param request
+     * @param dashboardIdStr
+     * @param sonarDTO
+     * @return
+     */
     @PostMapping("/sonar")
     public ResponseEntity addSonarElement(HttpServletRequest request,
                                           @RequestParam(name = "dashboardId", required = true) String dashboardIdStr,
@@ -52,11 +59,20 @@ public class ElementController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Method to delete an element in a dashboard
+     *
+     * @param request
+     * @param dashboardIdStr
+     * @param type
+     * @param elementIdStr
+     * @return
+     */
     @DeleteMapping
     public ResponseEntity deleteElement(HttpServletRequest request,
-                                 @RequestParam(name = "dashboardId", required = true) String dashboardIdStr,
-                                 @RequestParam(name = "type", required = true) String type,
-                                 @RequestParam(name = "elementId", required = true) String elementIdStr) {
+                                        @RequestParam(name = "dashboardId", required = true) String dashboardIdStr,
+                                        @RequestParam(name = "type", required = true) String type,
+                                        @RequestParam(name = "elementId", required = true) String elementIdStr) {
         ProfileDTO profileDTO = checkSessionActive(request.getSession());
 
         ElementType elementType;
@@ -74,6 +90,7 @@ public class ElementController {
 
     /**
      * Method to check if the session is active
+     *
      * @param session
      * @return
      */

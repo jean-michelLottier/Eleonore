@@ -29,9 +29,27 @@ public interface ElementService {
      */
     List<ElementDTO> getElements(Long dashboardId);
 
+    /**
+     * Method to save a dashboard element in database according to its type
+     * @param dashboardId
+     * @param elementDTO
+     * @return
+     */
     ElementDTO saveElement(Long dashboardId, ElementDTO elementDTO);
 
+    /**
+     * Method to delete a dashboard element
+     * @param dashboardId
+     * @param elementDTO
+     */
     void deleteElement(Long dashboardId, ElementDTO elementDTO);
 
+    /**
+     * Method to delete a dashboard element (secure way)
+     * @param profileId
+     * @param dashboardId
+     * @param elementId
+     * @param elementType
+     */
     void deleteElement(Long profileId, Long dashboardId, Long elementId, ElementType elementType);
 }

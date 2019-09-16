@@ -88,4 +88,25 @@ public class Sonar {
     public int hashCode() {
         return Objects.hash(url, projectName, projectKey);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof Sonar) {
+            Sonar sonar = (Sonar) obj;
+            return sonar.id == this.id
+                    && this.url.equals(sonar.url)
+                    && ((this.projectKey != null && this.projectKey.equals(sonar.projectKey))
+                    || this.projectKey == null && sonar.projectKey == null)
+                    && ((this.projectName != null && this.projectName.equals(sonar.projectName))
+                    || this.projectName == null && sonar.projectName == null)
+                    && ((this.metrics != null && this.metrics.equals(sonar.metrics))
+                    || this.metrics == null && sonar.metrics == null);
+        }
+
+        return false;
+    }
 }
