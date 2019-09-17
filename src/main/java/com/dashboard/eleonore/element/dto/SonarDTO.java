@@ -1,9 +1,12 @@
-package com.dashboard.eleonore.component.dto;
+package com.dashboard.eleonore.element.dto;
 
-import com.dashboard.eleonore.component.repository.entity.ElementType;
-import com.dashboard.eleonore.component.repository.entity.Sonar;
+import com.dashboard.eleonore.element.repository.entity.ElementType;
+import com.dashboard.eleonore.element.repository.entity.Sonar;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SonarDTO extends ElementDTO implements Serializable {
 
@@ -12,6 +15,7 @@ public class SonarDTO extends ElementDTO implements Serializable {
     private String url;
     private String projectName;
     private String projectKey;
+    private Set<SonarMetricDTO> sonarMetrics;
 
     public SonarDTO() {
         super(null);
@@ -22,6 +26,9 @@ public class SonarDTO extends ElementDTO implements Serializable {
         this.url = sonar.getUrl();
         this.projectName = sonar.getProjectName();
         this.projectKey = sonar.getProjectKey();
+        if (!CollectionUtils.isEmpty(sonar.getMetrics())) {
+            this.sonarMetrics = sonar.getMetrics().stream().map(SonarMetricDTO::new).collect(Collectors.toSet());
+        }
     }
 
     public String getUrl() {
@@ -46,6 +53,14 @@ public class SonarDTO extends ElementDTO implements Serializable {
 
     public void setProjectKey(String projectKey) {
         this.projectKey = projectKey;
+    }
+
+    public Set<SonarMetricDTO> getSonarMetrics() {
+        return sonarMetrics;
+    }
+
+    public void setSonarMetrics(Set<SonarMetricDTO> sonarMetrics) {
+        this.sonarMetrics = sonarMetrics;
     }
 
     @Override
