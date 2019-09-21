@@ -4,6 +4,7 @@ import com.dashboard.eleonore.element.dto.ElementDTO;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ElementService {
     /**
@@ -22,6 +23,16 @@ public interface ElementService {
     void copyDashboardElements(Long dashboardIdOriginal, Long dashboardIdCopy);
 
     /**
+     * Method to get element.
+     *
+     * @param profileId
+     * @param elementId
+     * @param type
+     * @return
+     */
+    Optional<ElementDTO> getElement(Long profileId, Long elementId, ElementType type);
+
+    /**
      * Method to get elements belong to a given dashboard.
      *
      * @param dashboardId
@@ -31,6 +42,7 @@ public interface ElementService {
 
     /**
      * Method to save a dashboard element in database according to its type
+     *
      * @param dashboardId
      * @param elementDTO
      * @return
@@ -39,6 +51,7 @@ public interface ElementService {
 
     /**
      * Method to delete a dashboard element
+     *
      * @param dashboardId
      * @param elementDTO
      */
@@ -46,6 +59,7 @@ public interface ElementService {
 
     /**
      * Method to delete a dashboard element (secure way)
+     *
      * @param profileId
      * @param dashboardId
      * @param elementId
