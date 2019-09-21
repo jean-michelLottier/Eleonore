@@ -27,7 +27,7 @@ public class Sonar {
     @Column(name = "project_key")
     private String projectKey;
 
-    @OneToMany(mappedBy = "sonar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sonar", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SonarMetric> metrics;
 
     public Sonar() {

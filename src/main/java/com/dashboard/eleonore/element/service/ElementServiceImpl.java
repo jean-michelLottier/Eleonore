@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,6 +60,26 @@ public class ElementServiceImpl implements ElementService {
             component.setType(ElementType.SONAR);
             this.componentRepository.save(component);
         });
+    }
+
+    @Override
+    public Optional<ElementDTO> getElement(Long profileId, Long elementId, ElementType type) {
+        if (profileId == null || elementId == null || type == null) {
+            return Optional.empty();
+        }
+
+        ElementDTO elementDTO = null;
+        switch (type) {
+            case SONAR:
+                Optional<Sonar> optionalSonar = this.sonarRepository.find(profileId, elementId);
+                if (optionalSonar.isPresent()) {
+                    elementDTO = new SonarDTO(optionalSonar.get());
+                }
+                break;
+            default:
+        }
+
+        return Optional.ofNullable(elementDTO);
     }
 
     @Override
@@ -123,7 +144,7 @@ public class ElementServiceImpl implements ElementService {
     @Override
     @Transactional
     public void deleteElement(Long profileId, Long dashboardId, Long elementId, ElementType elementType) {
-        if(profileId == null || dashboardId == null || elementId == null || elementType == null) {
+        if (profileId == null || dashboardId == null || elementId == null || elementType == null) {
             return;
         }
 

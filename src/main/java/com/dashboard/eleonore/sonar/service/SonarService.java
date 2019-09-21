@@ -8,9 +8,22 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public interface SonarService {
-    String url = "http://192.168.99.100:9000/api";
+    /**
+     * Synchronous method to get sonar metrics project.
+     *
+     * @param profileId
+     * @param sonarId
+     * @return
+     */
+    HttpResponse<SonarOT> getMeasuresComponent(Long profileId, Long sonarId);
 
-    HttpResponse<SonarOT> getMeasuresComponent();
-
-    CompletableFuture<ResponseEntity<SonarOT>> getMeasuresComponentAsync(Function<HttpResponse<SonarOT>, ResponseEntity<SonarOT>> callback);
+    /**
+     * Asynchronous method to get sonar metrics project.
+     *
+     * @param profileId
+     * @param sonarId
+     * @param callback
+     * @return
+     */
+    CompletableFuture<ResponseEntity<SonarOT>> getMeasuresComponentAsync(Long profileId, Long sonarId, Function<HttpResponse<SonarOT>, ResponseEntity<SonarOT>> callback);
 }
