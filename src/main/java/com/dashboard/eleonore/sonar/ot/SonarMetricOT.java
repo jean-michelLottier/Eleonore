@@ -1,4 +1,4 @@
-package com.dashboard.eleonore.sonar.service;
+package com.dashboard.eleonore.sonar.ot;
 
 public class SonarMetricOT {
     private String metric;

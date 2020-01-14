@@ -4,7 +4,7 @@ import com.dashboard.eleonore.profile.dto.ProfileDTO;
 import com.dashboard.eleonore.profile.exception.AuthenticationException;
 import com.dashboard.eleonore.profile.service.ProfileService;
 import com.dashboard.eleonore.profile.service.ProfileServiceImpl;
-import com.dashboard.eleonore.sonar.service.SonarOT;
+import com.dashboard.eleonore.sonar.ot.SonarOT;
 import com.dashboard.eleonore.sonar.service.SonarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

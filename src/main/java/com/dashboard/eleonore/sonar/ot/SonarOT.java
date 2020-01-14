@@ -1,4 +1,4 @@
-package com.dashboard.eleonore.sonar.service;
+package com.dashboard.eleonore.sonar.ot;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonSetter;

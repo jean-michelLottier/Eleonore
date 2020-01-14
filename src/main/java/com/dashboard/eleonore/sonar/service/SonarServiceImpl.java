@@ -6,6 +6,7 @@ import com.dashboard.eleonore.element.dto.SonarMetricDTO;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.service.ElementService;
 import com.dashboard.eleonore.http.HttpService;
+import com.dashboard.eleonore.sonar.ot.SonarOT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,6 +8,7 @@ import com.dashboard.eleonore.profile.service.ProfileServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 @RestController
 public class ProfileController {
@@ -49,10 +51,14 @@ public class ProfileController {
             request.getSession().setAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY, token);
             this.profileService.saveToken(authentication, token);
 
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setAccessControlExposeHeaders(Arrays.asList("X-Auth-Token"));
+            httpHeaders.setAccessControlAllowCredentials(true);
+
             if (optionalProfileDTO.isPresent()) {
-                response = ResponseEntity.ok(optionalProfileDTO.get());
+                response = ResponseEntity.ok().headers(httpHeaders).body(optionalProfileDTO.get());
             } else {
-                response = ResponseEntity.ok().build();
+                response = ResponseEntity.ok().headers(httpHeaders).build();
             }
         } else {
             request.getSession().invalidate();
