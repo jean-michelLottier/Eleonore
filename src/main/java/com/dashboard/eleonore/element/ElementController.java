@@ -5,10 +5,9 @@ import com.dashboard.eleonore.dashboard.service.DashboardService;
 import com.dashboard.eleonore.element.dto.SonarDTO;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.service.ElementService;
+import com.dashboard.eleonore.http.BaseController;
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
-import com.dashboard.eleonore.profile.exception.AuthenticationException;
 import com.dashboard.eleonore.profile.service.ProfileService;
-import com.dashboard.eleonore.profile.service.ProfileServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,20 +15,22 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/dashboard/element")
-public class ElementController {
-    @Autowired
-    private ProfileService profileService;
+public class ElementController extends BaseController {
 
     @Autowired
     private ElementService elementService;
 
     @Autowired
     private DashboardService dashboardService;
+
+    @Autowired
+    public ElementController(ProfileService profileService) {
+        super(profileService);
+    }
 
     /**
      * Method to add a Sonar element in a dashboard
@@ -86,20 +87,5 @@ public class ElementController {
                 Long.valueOf(elementIdStr), elementType);
 
         return ResponseEntity.ok().build();
-    }
-
-    /**
-     * Method to check if the session is active
-     *
-     * @param session
-     * @return
-     */
-    private ProfileDTO checkSessionActive(HttpSession session) {
-        if (session == null) {
-            throw new AuthenticationException();
-        }
-
-        return this.profileService.getProfile((String) session.getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY))
-                .orElseThrow(AuthenticationException::new);
     }
 }

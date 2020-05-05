@@ -87,7 +87,7 @@ public class SonarServiceImpl extends HttpService<SonarOT> implements SonarServi
             url.append("api");
         }
 
-        url.append("/measures/component?componentKey=")
+        url.append("/measures/component?component=")
                 .append(sonarDTO.getProjectKey())
                 .append("&metricKeys=")
                 .append(sonarDTO.getSonarMetrics()

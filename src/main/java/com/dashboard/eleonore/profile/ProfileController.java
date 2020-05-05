@@ -1,5 +1,6 @@
 package com.dashboard.eleonore.profile;
 
+import com.dashboard.eleonore.http.BaseController;
 import com.dashboard.eleonore.profile.dto.AuthenticationDTO;
 import com.dashboard.eleonore.profile.dto.UserDTO;
 import com.dashboard.eleonore.profile.repository.entity.ProfileType;
@@ -20,11 +21,13 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 @RestController
-public class ProfileController {
+public class ProfileController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileController.class);
 
     @Autowired
-    private ProfileService profileService;
+    public ProfileController(ProfileService profileService) {
+        super(profileService);
+    }
 
     /**
      * Method for a profile to log in to Eleonore
@@ -41,15 +44,15 @@ public class ProfileController {
         }
 
         ResponseEntity response = null;
-        var optionalAuth = this.profileService.getAuthentication(authenticationDTO.getLogin(), authenticationDTO.getPassword());
+        var optionalAuth = getProfileService().getAuthentication(authenticationDTO.getLogin(), authenticationDTO.getPassword());
         if (optionalAuth.isPresent()) {
             var authentication = optionalAuth.get();
             // We get profile information which it will be returned for the client
-            var optionalProfileDTO = this.profileService.getProfile(authentication.getId(), authentication.getType());
+            var optionalProfileDTO = getProfileService().getProfile(authentication.getId(), authentication.getType());
             // Save token in session and in databases
             var token = ProfileService.generateToken(authentication);
             request.getSession().setAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY, token);
-            this.profileService.saveToken(authentication, token);
+            getProfileService().saveToken(authentication, token);
 
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setAccessControlExposeHeaders(Arrays.asList("X-Auth-Token"));
@@ -77,7 +80,7 @@ public class ProfileController {
     public ResponseEntity logout(HttpServletRequest request) {
         LOGGER.info("eleonore - Attempt for logout");
         if (request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY) != null) {
-            this.profileService.deleteToken((String) request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY));
+            getProfileService().deleteToken((String) request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY));
             request.getSession().invalidate();
         }
 
@@ -94,6 +97,6 @@ public class ProfileController {
     public ResponseEntity createUser(HttpServletRequest request, @RequestBody UserDTO user) {
         LOGGER.info("eleonore - Attempt for user creation");
         // TODO : Check if the user already exists
-        return ResponseEntity.ok(this.profileService.saveProfile(user, ProfileType.USER));
+        return ResponseEntity.ok(getProfileService().saveProfile(user, ProfileType.USER));
     }
 }

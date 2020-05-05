@@ -1,9 +1,12 @@
 package com.dashboard.eleonore.sonar.ot;
 
+import java.util.List;
+
 public class SonarMetricOT {
     private String metric;
-    private double value;
+    private String value;
     private boolean bestValue;
+    private List<SonarPeriodOT> periods;
 
     public String getMetric() {
         return metric;
@@ -13,11 +16,11 @@ public class SonarMetricOT {
         this.metric = metric;
     }
 
-    public double getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
@@ -27,5 +30,13 @@ public class SonarMetricOT {
 
     public void setBestValue(boolean bestValue) {
         this.bestValue = bestValue;
+    }
+
+    public List<SonarPeriodOT> getPeriods() {
+        return periods;
+    }
+
+    public void setPeriods(List<SonarPeriodOT> periods) {
+        this.periods = periods;
     }
 }

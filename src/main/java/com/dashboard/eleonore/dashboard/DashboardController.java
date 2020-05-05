@@ -4,10 +4,8 @@ import com.dashboard.eleonore.dashboard.dto.CustomerDTO;
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import com.dashboard.eleonore.dashboard.exception.DashboardNotFoundException;
 import com.dashboard.eleonore.dashboard.service.DashboardService;
-import com.dashboard.eleonore.profile.exception.AuthenticationException;
-import com.dashboard.eleonore.profile.exception.ProfileNotFoundException;
+import com.dashboard.eleonore.http.BaseController;
 import com.dashboard.eleonore.profile.service.ProfileService;
-import com.dashboard.eleonore.profile.service.ProfileServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,17 +13,18 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
 @RequestMapping("/dashboard")
-public class DashboardController {
+public class DashboardController extends BaseController {
     @Autowired
     private DashboardService dashboardService;
 
     @Autowired
-    private ProfileService profileService;
+    public DashboardController(ProfileService profileService) {
+        super(profileService);
+    }
 
     /**
      * Method to create a new dashboard
@@ -36,14 +35,12 @@ public class DashboardController {
      */
     @PostMapping("/new")
     public ResponseEntity<DashboardDTO> create(HttpServletRequest request, @RequestBody DashboardDTO dashboardDTO) {
-        checkSessionActive(request.getSession());
+        var profileDTO = checkSessionActive(request.getSession());
 
         if (dashboardDTO == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        var profileDTO = this.profileService.getProfile((String) request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY))
-                .orElseThrow(ProfileNotFoundException::new);
         dashboardDTO = this.dashboardService.saveDashboard(dashboardDTO);
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setDashboardId(dashboardDTO.getId());
@@ -68,10 +65,7 @@ public class DashboardController {
     public ResponseEntity<DashboardDTO> getDashboard(HttpServletRequest request,
                                                      @RequestParam(name = "id", required = false) String id,
                                                      @RequestParam(name = "name", required = false) String name) {
-        checkSessionActive(request.getSession());
-
-        var profileDTO = this.profileService.getProfile((String) request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY))
-                .orElseThrow(ProfileNotFoundException::new);
+        var profileDTO = checkSessionActive(request.getSession());
 
         DashboardDTO dashboardDTO = null;
         if (!StringUtils.isEmpty(id)) {
@@ -95,10 +89,7 @@ public class DashboardController {
      */
     @GetMapping("/list")
     public ResponseEntity<List<DashboardDTO>> getDashboardList(HttpServletRequest request) {
-        checkSessionActive(request.getSession());
-
-        var profileDTO = this.profileService.getProfile((String) request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY))
-                .orElseThrow(ProfileNotFoundException::new);
+        var profileDTO = checkSessionActive(request.getSession());
 
         return ResponseEntity.ok(this.dashboardService.getDashboards(profileDTO.getAuthentication().getProfileId()));
     }
@@ -115,10 +106,7 @@ public class DashboardController {
     public ResponseEntity delete(HttpServletRequest request,
                                  @RequestParam(name = "id", required = false) String id,
                                  @RequestParam(name = "name", required = false) String name) {
-        checkSessionActive(request.getSession());
-
-        var profileDTO = this.profileService.getProfile((String) request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY))
-                .orElseThrow(ProfileNotFoundException::new);
+        var profileDTO = checkSessionActive(request.getSession());
 
         if (!StringUtils.isEmpty(id)) {
             this.dashboardService.deleteDashboard(Long.valueOf(id), profileDTO.getAuthentication().getProfileId());
@@ -129,12 +117,5 @@ public class DashboardController {
         }
 
         return ResponseEntity.ok().build();
-    }
-
-    private void checkSessionActive(HttpSession session) {
-        if (session == null
-                || !this.profileService.isTokenValid((String) session.getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY))) {
-            throw new AuthenticationException();
-        }
     }
 }

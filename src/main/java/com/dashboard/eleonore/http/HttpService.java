@@ -2,6 +2,8 @@ package com.dashboard.eleonore.http;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -15,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public abstract class HttpService<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
 
     public final HttpResponse<T> get(HttpRequest request) throws IOException, InterruptedException {
         var client = HttpClient.newHttpClient();
@@ -26,7 +29,10 @@ public abstract class HttpService<T> {
         var client = HttpClient.newHttpClient();
         return client.sendAsync(request, new JsonBodyHandler<>(this.getTClass()))
                 .thenApply(callback)
-                .exceptionally(throwable -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+                .exceptionally(throwable -> {
+                    LOGGER.error("An error occurred with the request sent", throwable);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                });
     }
 
     public abstract void POST(final T body);

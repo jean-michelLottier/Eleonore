@@ -1,9 +1,8 @@
 package com.dashboard.eleonore.sonar;
 
+import com.dashboard.eleonore.http.BaseController;
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
-import com.dashboard.eleonore.profile.exception.AuthenticationException;
 import com.dashboard.eleonore.profile.service.ProfileService;
-import com.dashboard.eleonore.profile.service.ProfileServiceImpl;
 import com.dashboard.eleonore.sonar.ot.SonarOT;
 import com.dashboard.eleonore.sonar.service.SonarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +15,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/sonar")
-public class SonarController {
+public class SonarController extends BaseController {
 
     @Autowired
     private SonarService sonarService;
 
     @Autowired
-    private ProfileService profileService;
+    public SonarController(ProfileService profileService) {
+        super(profileService);
+    }
 
     @GetMapping(value = "/metrics")
     public ResponseEntity<SonarOT> getMetrics(HttpServletRequest request, @RequestParam(name = "id", required = true) String sonarIdStr) {
@@ -63,20 +63,5 @@ public class SonarController {
 
         return this.sonarService.getMeasuresComponentAsync(profileDTO.getAuthentication().getProfileId(),
                 sonarId, response -> ResponseEntity.ok(response.body()));
-    }
-
-    /**
-     * Method to check if the session is active
-     *
-     * @param session
-     * @return
-     */
-    private ProfileDTO checkSessionActive(HttpSession session) {
-        if (session == null) {
-            throw new AuthenticationException();
-        }
-
-        return this.profileService.getProfile((String) session.getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY))
-                .orElseThrow(AuthenticationException::new);
     }
 }

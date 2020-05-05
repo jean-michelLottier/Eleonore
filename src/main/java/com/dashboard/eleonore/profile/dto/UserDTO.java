@@ -3,7 +3,11 @@ package com.dashboard.eleonore.profile.dto;
 import com.dashboard.eleonore.profile.repository.entity.Authentication;
 import com.dashboard.eleonore.profile.repository.entity.User;
 
-public class UserDTO extends ProfileDTO {
+import java.io.Serializable;
+
+public class UserDTO extends ProfileDTO implements Serializable {
+    private static final long serialVersionUID = -1561865196638518396L;
+
     private Long id;
     private String firstName;
     private String lastName;
