@@ -2,16 +2,19 @@ package com.dashboard.eleonore.element.service;
 
 import com.dashboard.eleonore.element.dto.ElementDTO;
 import com.dashboard.eleonore.element.dto.SonarDTO;
+import com.dashboard.eleonore.element.dto.SonarMetricDTO;
 import com.dashboard.eleonore.element.repository.ComponentRepository;
 import com.dashboard.eleonore.element.repository.SonarMetricRepository;
 import com.dashboard.eleonore.element.repository.SonarRepository;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.repository.entity.Sonar;
+import com.dashboard.eleonore.element.repository.entity.SonarMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -160,5 +163,47 @@ public class ElementServiceImpl implements ElementService {
 
         // Step 2: delete the component in database
         this.componentRepository.deleteDashboardComponent(dashboardId, elementId, elementType);
+    }
+
+    @Override
+    @Transactional
+    public void updateElement(ElementDTO elementDTO) {
+        if (elementDTO == null) {
+            return;
+        }
+
+        switch (elementDTO.getType()) {
+            case SONAR:
+                LOGGER.info("eleonore - Updating sonar element {}", elementDTO.getId());
+                Sonar sonar = new Sonar((SonarDTO) elementDTO);
+                // Step 1: Delete all unselected metrics
+                List<SonarMetricDTO> currentMetrics = this.sonarMetricRepository.findSonarMetricsBySonarId(
+                        sonar.getId()).stream().map(SonarMetricDTO::new).collect(Collectors.toList());
+                List<SonarMetricDTO> currentMetricsToDelete = currentMetrics.stream()
+                        .filter(currentMetric -> sonar.getMetrics().stream()
+                                .noneMatch(selectedMetric -> selectedMetric.getMetric().equals(currentMetric.getMetric())))
+                        .collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(currentMetricsToDelete)) {
+                    this.sonarMetricRepository.deleteAll(
+                            currentMetricsToDelete.stream().map(SonarMetric::new).collect(Collectors.toList())
+                    );
+                }
+
+                // Step 2: Save metrics
+                this.sonarMetricRepository.saveAll(sonar.getMetrics());
+                // Step 3: Save sonar
+                this.sonarRepository.save(sonar);
+                break;
+            default:
+        }
+    }
+
+    @Override
+    public boolean isComponentEditable(Long profileId, Long componentId, ElementType type) {
+        if (profileId == null || componentId == null || type == null) {
+            return false;
+        }
+
+        return this.componentRepository.isComponentEditable(componentId, type, profileId);
     }
 }

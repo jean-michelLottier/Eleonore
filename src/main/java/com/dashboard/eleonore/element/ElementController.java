@@ -88,4 +88,21 @@ public class ElementController extends BaseController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/sonar/modify")
+    public ResponseEntity modifySonarElement(HttpServletRequest request, @RequestBody SonarDTO sonarDTO) {
+        if (sonarDTO == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        ProfileDTO profileDTO = checkSessionActive(request.getSession());
+
+        if (this.elementService.isComponentEditable(profileDTO.getAuthentication().getProfileId(), sonarDTO.getId(), ElementType.SONAR)) {
+            this.elementService.updateElement(sonarDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
 }

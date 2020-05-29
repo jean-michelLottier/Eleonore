@@ -66,4 +66,8 @@ public interface ElementService {
      * @param elementType
      */
     void deleteElement(Long profileId, Long dashboardId, Long elementId, ElementType elementType);
+
+    void updateElement(ElementDTO elementDTO);
+
+    boolean isComponentEditable(Long profileId, Long elementId, ElementType type);
 }
