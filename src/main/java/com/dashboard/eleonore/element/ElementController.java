@@ -2,6 +2,7 @@ package com.dashboard.eleonore.element;
 
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import com.dashboard.eleonore.dashboard.service.DashboardService;
+import com.dashboard.eleonore.element.dto.ElementDTO;
 import com.dashboard.eleonore.element.dto.SonarDTO;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.service.ElementService;
@@ -41,7 +42,7 @@ public class ElementController extends BaseController {
      * @return
      */
     @PostMapping("/sonar")
-    public ResponseEntity addSonarElement(HttpServletRequest request,
+    public ResponseEntity<ElementDTO> addSonarElement(HttpServletRequest request,
                                           @RequestParam(name = "dashboardId", required = true) String dashboardIdStr,
                                           @RequestBody SonarDTO sonarDTO) {
         if (StringUtils.isEmpty(dashboardIdStr) || sonarDTO == null) {
@@ -55,9 +56,9 @@ public class ElementController extends BaseController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        this.elementService.saveElement(dashboardId, sonarDTO);
+        ElementDTO savedElement = this.elementService.saveElement(dashboardId, sonarDTO);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(savedElement);
     }
 
     /**
