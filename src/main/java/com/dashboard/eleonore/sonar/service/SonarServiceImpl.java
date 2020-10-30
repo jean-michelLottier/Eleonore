@@ -3,7 +3,6 @@ package com.dashboard.eleonore.sonar.service;
 import com.dashboard.eleonore.element.dto.ElementDTO;
 import com.dashboard.eleonore.element.dto.SonarDTO;
 import com.dashboard.eleonore.element.dto.SonarMetricDTO;
-import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.service.ElementService;
 import com.dashboard.eleonore.http.HttpService;
 import com.dashboard.eleonore.sonar.ot.SonarOT;
@@ -34,7 +33,7 @@ public class SonarServiceImpl extends HttpService<SonarOT> implements SonarServi
             return null;
         }
 
-        Optional<ElementDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId, ElementType.SONAR);
+        Optional<ElementDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId, SonarDTO.class);
         StringBuilder url = new StringBuilder();
         optionalElementDTO.ifPresent(elementDTO -> url.append(buildURL((SonarDTO) elementDTO)));
 
@@ -53,7 +52,7 @@ public class SonarServiceImpl extends HttpService<SonarOT> implements SonarServi
     @Override
     public CompletableFuture<ResponseEntity<SonarOT>> getMeasuresComponentAsync(Long profileId, Long sonarId,
                                                                                 Function<HttpResponse<SonarOT>, ResponseEntity<SonarOT>> callback) {
-        Optional<ElementDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId, ElementType.SONAR);
+        Optional<ElementDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId, SonarDTO.class);
         StringBuilder url = new StringBuilder();
         optionalElementDTO.ifPresent(elementDTO -> url.append(buildURL((SonarDTO) elementDTO)));
 

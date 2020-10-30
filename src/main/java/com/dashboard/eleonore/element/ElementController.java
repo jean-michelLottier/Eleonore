@@ -43,7 +43,7 @@ public class ElementController extends BaseController {
      */
     @PostMapping("/sonar")
     public ResponseEntity<ElementDTO> addSonarElement(HttpServletRequest request,
-                                          @RequestParam(name = "dashboardId", required = true) String dashboardIdStr,
+                                          @RequestParam(name = "dashboardId") String dashboardIdStr,
                                           @RequestBody SonarDTO sonarDTO) {
         if (StringUtils.isEmpty(dashboardIdStr) || sonarDTO == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -56,9 +56,7 @@ public class ElementController extends BaseController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        ElementDTO savedElement = this.elementService.saveElement(dashboardId, sonarDTO);
-
-        return ResponseEntity.ok(savedElement);
+        return ResponseEntity.of(this.elementService.saveElement(dashboardId, sonarDTO));
     }
 
     /**
@@ -72,9 +70,9 @@ public class ElementController extends BaseController {
      */
     @DeleteMapping
     public ResponseEntity deleteElement(HttpServletRequest request,
-                                        @RequestParam(name = "dashboardId", required = true) String dashboardIdStr,
-                                        @RequestParam(name = "type", required = true) String type,
-                                        @RequestParam(name = "elementId", required = true) String elementIdStr) {
+                                        @RequestParam(name = "dashboardId") String dashboardIdStr,
+                                        @RequestParam(name = "type") String type,
+                                        @RequestParam(name = "elementId") String elementIdStr) {
         ProfileDTO profileDTO = checkSessionActive(request.getSession());
 
         ElementType elementType;
@@ -84,14 +82,27 @@ public class ElementController extends BaseController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
+        Class classElement;
+        switch (elementType) {
+            case SONAR:
+            default:
+                classElement = SonarDTO.class;
+        }
+
         this.elementService.deleteElement(profileDTO.getAuthentication().getProfileId(), Long.valueOf(dashboardIdStr),
-                Long.valueOf(elementIdStr), elementType);
+                Long.valueOf(elementIdStr), classElement);
 
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Method to modify a sonar element in a dashboard
+     * @param request
+     * @param sonarDTO
+     * @return
+     */
     @PostMapping("/sonar/modify")
-    public ResponseEntity modifySonarElement(HttpServletRequest request, @RequestBody SonarDTO sonarDTO) {
+    public ResponseEntity<ElementDTO> modifySonarElement(HttpServletRequest request, @RequestBody SonarDTO sonarDTO) {
         if (sonarDTO == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -99,11 +110,9 @@ public class ElementController extends BaseController {
         ProfileDTO profileDTO = checkSessionActive(request.getSession());
 
         if (this.elementService.isComponentEditable(profileDTO.getAuthentication().getProfileId(), sonarDTO.getId(), ElementType.SONAR)) {
-            this.elementService.updateElement(sonarDTO);
+            return ResponseEntity.of(this.elementService.updateElement(sonarDTO));
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        return ResponseEntity.ok().build();
     }
 }

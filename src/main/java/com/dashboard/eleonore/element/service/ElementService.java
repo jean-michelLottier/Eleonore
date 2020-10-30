@@ -1,27 +1,10 @@
 package com.dashboard.eleonore.element.service;
 
 import com.dashboard.eleonore.element.dto.ElementDTO;
-import com.dashboard.eleonore.element.repository.entity.ElementType;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface ElementService {
-    /**
-     * Method to delete all elements belong to a given dashboard.
-     *
-     * @param dashboardId
-     */
-    void deleteElements(Long dashboardId);
-
-    /**
-     * Method to copy all elements belong to an original dashboard to a copy.
-     *
-     * @param dashboardIdOriginal
-     * @param dashboardIdCopy
-     */
-    void copyDashboardElements(Long dashboardIdOriginal, Long dashboardIdCopy);
-
+public interface ElementService<T extends ElementDTO> extends ElementsService {
     /**
      * Method to get element.
      *
@@ -30,15 +13,7 @@ public interface ElementService {
      * @param type
      * @return
      */
-    Optional<ElementDTO> getElement(Long profileId, Long elementId, ElementType type);
-
-    /**
-     * Method to get elements belong to a given dashboard.
-     *
-     * @param dashboardId
-     * @return
-     */
-    List<ElementDTO> getElements(Long dashboardId);
+    Optional<T> getElement(Long profileId, Long elementId, Class<T> type);
 
     /**
      * Method to save a dashboard element in database according to its type
@@ -47,7 +22,7 @@ public interface ElementService {
      * @param elementDTO
      * @return
      */
-    ElementDTO saveElement(Long dashboardId, ElementDTO elementDTO);
+    Optional<T> saveElement(Long dashboardId, T elementDTO);
 
     /**
      * Method to delete a dashboard element
@@ -55,7 +30,7 @@ public interface ElementService {
      * @param dashboardId
      * @param elementDTO
      */
-    void deleteElement(Long dashboardId, ElementDTO elementDTO);
+    void deleteElement(Long dashboardId, T elementDTO);
 
     /**
      * Method to delete a dashboard element (secure way)
@@ -65,9 +40,13 @@ public interface ElementService {
      * @param elementId
      * @param elementType
      */
-    void deleteElement(Long profileId, Long dashboardId, Long elementId, ElementType elementType);
+    void deleteElement(Long profileId, Long dashboardId, Long elementId, Class<T> elementType);
 
-    void updateElement(ElementDTO elementDTO);
-
-    boolean isComponentEditable(Long profileId, Long elementId, ElementType type);
+    /**
+     * Method to update a dashboard element in database according to its type
+     *
+     * @param elementDTO
+     * @return
+     */
+    Optional<T> updateElement(T elementDTO);
 }

@@ -1,12 +1,12 @@
 package com.dashboard.eleonore.dashboard.service;
 
-import com.dashboard.eleonore.element.service.ElementService;
 import com.dashboard.eleonore.dashboard.dto.CustomerDTO;
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import com.dashboard.eleonore.dashboard.repository.CustomerRepository;
 import com.dashboard.eleonore.dashboard.repository.DashboardRepository;
 import com.dashboard.eleonore.dashboard.repository.entity.Customer;
 import com.dashboard.eleonore.dashboard.repository.entity.Dashboard;
+import com.dashboard.eleonore.element.service.ElementsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class DashboardServiceImpl implements DashboardService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private ElementService elementService;
+    private ElementsService elementsService;
 
     @Override
     public DashboardDTO saveDashboard(DashboardDTO dashboardDTO) {
@@ -85,7 +85,7 @@ public class DashboardServiceImpl implements DashboardService {
         DashboardDTO dashboardDTO = null;
         if (optionalDashboard.isPresent()) {
             dashboardDTO = new DashboardDTO(optionalDashboard.get());
-            dashboardDTO.setElements(this.elementService.getElements(dashboardDTO.getId()));
+            dashboardDTO.setElements(this.elementsService.getElements(dashboardDTO.getId()));
         }
 
         return Optional.ofNullable(dashboardDTO);
@@ -97,7 +97,7 @@ public class DashboardServiceImpl implements DashboardService {
         DashboardDTO dashboardDTO = null;
         if (optionalDashboard.isPresent()) {
             dashboardDTO = new DashboardDTO(optionalDashboard.get());
-            dashboardDTO.setElements(this.elementService.getElements(dashboardDTO.getId()));
+            dashboardDTO.setElements(this.elementsService.getElements(dashboardDTO.getId()));
         }
 
         return Optional.ofNullable(dashboardDTO);
@@ -127,7 +127,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         // Case 1: The customer is the dashboard owner and he is alone to use it
         if (customers.size() == 1 && profileId.equals(customers.get(0).getProfileId())) {
-            this.elementService.deleteElements(dashboard.getId());
+            this.elementsService.deleteElements(dashboard.getId());
             this.customerRepository.delete(customers.get(0));
             this.dashboardRepository.delete(dashboard);
         } else if (customers.size() > 1) {
@@ -145,7 +145,7 @@ public class DashboardServiceImpl implements DashboardService {
                 // First each customer is associated with a copy of the removal shared dashboard
                 copyDashboard(new DashboardDTO(dashboard), customerDTOList);
                 // Then removal dashboard elements are deleted
-                this.elementService.deleteElements(dashboard.getId());
+                this.elementsService.deleteElements(dashboard.getId());
                 // And removal dashboard customers too
                 this.customerRepository.deleteAll(customers);
                 // To finish to remove the dashboard
@@ -167,7 +167,7 @@ public class DashboardServiceImpl implements DashboardService {
             var dashboardIdOriginal = customerDTO.getDashboardId();
             customerDTO.setDashboardId(dashboardCopy.getId());
             this.customerRepository.save(new Customer(customerDTO));
-            this.elementService.copyDashboardElements(dashboardIdOriginal, dashboardCopy.getId());
+            this.elementsService.copyDashboardElements(dashboardIdOriginal, dashboardCopy.getId());
         });
     }
 }
