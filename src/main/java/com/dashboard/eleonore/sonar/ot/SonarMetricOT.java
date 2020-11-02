@@ -7,6 +7,7 @@ public class SonarMetricOT {
     private String value;
     private boolean bestValue;
     private List<SonarPeriodOT> periods;
+    private SonarPeriodOT period;
 
     public String getMetric() {
         return metric;
@@ -38,5 +39,13 @@ public class SonarMetricOT {
 
     public void setPeriods(List<SonarPeriodOT> periods) {
         this.periods = periods;
+    }
+
+    public SonarPeriodOT getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(SonarPeriodOT period) {
+        this.period = period;
     }
 }
