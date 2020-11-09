@@ -1,7 +1,8 @@
-package com.dashboard.eleonore.element.dto;
+package com.dashboard.eleonore.element.sonar.dto;
 
+import com.dashboard.eleonore.element.dto.ElementDTO;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
-import com.dashboard.eleonore.element.repository.entity.Sonar;
+import com.dashboard.eleonore.element.sonar.repository.entity.Sonar;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;

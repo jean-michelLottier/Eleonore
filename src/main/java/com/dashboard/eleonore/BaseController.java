@@ -1,4 +1,4 @@
-package com.dashboard.eleonore.http;
+package com.dashboard.eleonore;
 
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
 import com.dashboard.eleonore.profile.exception.AuthenticationException;

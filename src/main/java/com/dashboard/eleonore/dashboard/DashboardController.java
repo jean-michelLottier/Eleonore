@@ -4,7 +4,7 @@ import com.dashboard.eleonore.dashboard.dto.CustomerDTO;
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import com.dashboard.eleonore.dashboard.exception.DashboardNotFoundException;
 import com.dashboard.eleonore.dashboard.service.DashboardService;
-import com.dashboard.eleonore.http.BaseController;
+import com.dashboard.eleonore.BaseController;
 import com.dashboard.eleonore.profile.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

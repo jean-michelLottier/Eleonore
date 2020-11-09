@@ -1,6 +1,6 @@
-package com.dashboard.eleonore.element.repository.entity;
+package com.dashboard.eleonore.element.sonar.repository.entity;
 
-import com.dashboard.eleonore.element.dto.SonarMetricDTO;
+import com.dashboard.eleonore.element.sonar.dto.SonarMetricDTO;
 import lombok.Data;
 
 import javax.persistence.*;

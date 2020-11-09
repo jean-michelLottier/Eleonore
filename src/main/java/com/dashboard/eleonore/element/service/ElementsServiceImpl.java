@@ -1,9 +1,9 @@
 package com.dashboard.eleonore.element.service;
 
+import com.dashboard.eleonore.element.actuator.dto.ActuatorDTO;
 import com.dashboard.eleonore.element.dto.ElementDTO;
-import com.dashboard.eleonore.element.dto.SonarDTO;
+import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
 import com.dashboard.eleonore.element.repository.ComponentRepository;
-import com.dashboard.eleonore.element.repository.entity.ElementType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -26,11 +26,13 @@ public class ElementsServiceImpl extends ElementServiceImpl implements ElementsS
     @Autowired
     public ElementsServiceImpl(
             ComponentRepository componentRepository,
-            @Qualifier("sonarEltServiceImpl") ElementService<SonarDTO> sonarEltService) {
+            @Qualifier("sonarEltServiceImpl") ElementService<SonarDTO> sonarEltService,
+            @Qualifier("actuatorEltServiceImpl") ElementService<ActuatorDTO> actuatorEltService) {
         super(componentRepository);
         this.componentRepository = componentRepository;
         this.elementServices = new HashSet<>();
         this.elementServices.add(sonarEltService);
+        this.elementServices.add(actuatorEltService);
     }
 
     @Override

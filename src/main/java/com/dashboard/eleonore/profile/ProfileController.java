@@ -1,6 +1,6 @@
 package com.dashboard.eleonore.profile;
 
-import com.dashboard.eleonore.http.BaseController;
+import com.dashboard.eleonore.BaseController;
 import com.dashboard.eleonore.profile.dto.AuthenticationDTO;
 import com.dashboard.eleonore.profile.dto.UserDTO;
 import com.dashboard.eleonore.profile.repository.entity.ProfileType;

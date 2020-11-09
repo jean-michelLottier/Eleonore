@@ -1,6 +1,6 @@
-package com.dashboard.eleonore.element.repository;
+package com.dashboard.eleonore.element.sonar.repository;
 
-import com.dashboard.eleonore.element.repository.entity.Sonar;
+import com.dashboard.eleonore.element.sonar.repository.entity.Sonar;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

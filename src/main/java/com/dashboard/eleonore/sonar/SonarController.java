@@ -1,6 +1,6 @@
 package com.dashboard.eleonore.sonar;
 
-import com.dashboard.eleonore.http.BaseController;
+import com.dashboard.eleonore.BaseController;
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
 import com.dashboard.eleonore.profile.service.ProfileService;
 import com.dashboard.eleonore.sonar.ot.SonarOT;

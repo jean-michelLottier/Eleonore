@@ -1,6 +1,6 @@
-package com.dashboard.eleonore.element.repository.entity;
+package com.dashboard.eleonore.element.sonar.repository.entity;
 
-import com.dashboard.eleonore.element.dto.SonarDTO;
+import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.util.CollectionUtils;

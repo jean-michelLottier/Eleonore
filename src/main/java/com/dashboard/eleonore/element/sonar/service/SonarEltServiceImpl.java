@@ -1,14 +1,16 @@
-package com.dashboard.eleonore.element.service;
+package com.dashboard.eleonore.element.sonar.service;
 
 import com.dashboard.eleonore.element.dto.ElementDTO;
-import com.dashboard.eleonore.element.dto.SonarDTO;
-import com.dashboard.eleonore.element.dto.SonarMetricDTO;
+import com.dashboard.eleonore.element.service.ElementService;
+import com.dashboard.eleonore.element.service.ElementServiceImpl;
+import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
+import com.dashboard.eleonore.element.sonar.dto.SonarMetricDTO;
 import com.dashboard.eleonore.element.repository.ComponentRepository;
-import com.dashboard.eleonore.element.repository.SonarMetricRepository;
-import com.dashboard.eleonore.element.repository.SonarRepository;
+import com.dashboard.eleonore.element.sonar.repository.SonarMetricRepository;
+import com.dashboard.eleonore.element.sonar.repository.SonarRepository;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
-import com.dashboard.eleonore.element.repository.entity.Sonar;
-import com.dashboard.eleonore.element.repository.entity.SonarMetric;
+import com.dashboard.eleonore.element.sonar.repository.entity.Sonar;
+import com.dashboard.eleonore.element.sonar.repository.entity.SonarMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,8 +72,8 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
     }
 
     @Override
-    public Optional<SonarDTO> getElement(Long profileId, Long elementId, Class<SonarDTO> type) {
-        if (profileId == null || elementId == null || type == null) {
+    public Optional<SonarDTO> getElement(Long profileId, Long elementId) {
+        if (profileId == null || elementId == null) {
             return Optional.empty();
         }
 
@@ -104,12 +106,8 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
         SonarDTO savedElementDTO = new SonarDTO(sonar);
 
         // If the saved element is new then it is linked with the given dashboard (defined by its id)
-        if (elementDTO.getId() == null && savedElementDTO != null) {
-            var component = new com.dashboard.eleonore.element.repository.entity.Component();
-            component.setDashboardId(dashboardId);
-            component.setElementId(savedElementDTO.getId());
-            component.setType(savedElementDTO.getType());
-            this.componentRepository.save(component);
+        if (elementDTO.getId() == null) {
+            this.saveComponent(dashboardId, savedElementDTO);
         }
 
         return Optional.ofNullable(savedElementDTO);
@@ -132,8 +130,8 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
 
     @Override
     @Transactional
-    public void deleteElement(Long profileId, Long dashboardId, Long elementId, Class<SonarDTO> elementType) {
-        if (profileId == null || dashboardId == null || elementId == null || elementType == null) {
+    public void deleteElement(Long profileId, Long dashboardId, Long elementId) {
+        if (profileId == null || dashboardId == null || elementId == null) {
             return;
         }
 
@@ -152,7 +150,6 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
         if (elementDTO == null) {
             return Optional.empty();
         }
-
 
         LOGGER.info("eleonore - Updating sonar element {}", elementDTO.getId());
         Sonar sonar = new Sonar(elementDTO);

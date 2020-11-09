@@ -1,12 +1,11 @@
-package com.dashboard.eleonore.element;
+package com.dashboard.eleonore.element.sonar;
 
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import com.dashboard.eleonore.dashboard.service.DashboardService;
-import com.dashboard.eleonore.element.dto.ElementDTO;
-import com.dashboard.eleonore.element.dto.SonarDTO;
 import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.service.ElementService;
-import com.dashboard.eleonore.http.BaseController;
+import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
+import com.dashboard.eleonore.BaseController;
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
 import com.dashboard.eleonore.profile.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,32 +18,32 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/dashboard/element")
-public class ElementController extends BaseController {
+@RequestMapping("/dashboard/element/sonar")
+public class SonarEltController extends BaseController {
+
+    private final ElementService<SonarDTO> elementService;
+    private final DashboardService dashboardService;
 
     @Autowired
-    private ElementService elementService;
-
-    @Autowired
-    private DashboardService dashboardService;
-
-    @Autowired
-    public ElementController(ProfileService profileService) {
+    public SonarEltController(ProfileService profileService, DashboardService dashboardService,
+                              ElementService<SonarDTO> elementService) {
         super(profileService);
+        this.dashboardService = dashboardService;
+        this.elementService = elementService;
     }
 
     /**
-     * Method to add a Sonar element in a dashboard
+     * Method to add a sonar element in a dashboard
      *
      * @param request
      * @param dashboardIdStr
      * @param sonarDTO
      * @return
      */
-    @PostMapping("/sonar")
-    public ResponseEntity<ElementDTO> addSonarElement(HttpServletRequest request,
-                                          @RequestParam(name = "dashboardId") String dashboardIdStr,
-                                          @RequestBody SonarDTO sonarDTO) {
+    @PostMapping
+    public ResponseEntity<SonarDTO> addElement(HttpServletRequest request,
+                                               @RequestParam(name = "dashboardId") String dashboardIdStr,
+                                               @RequestBody SonarDTO sonarDTO) {
         if (StringUtils.isEmpty(dashboardIdStr) || sonarDTO == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -60,49 +59,33 @@ public class ElementController extends BaseController {
     }
 
     /**
-     * Method to delete an element in a dashboard
+     * Method to delete a sonar element in a dashboard
      *
      * @param request
      * @param dashboardIdStr
-     * @param type
      * @param elementIdStr
      * @return
      */
     @DeleteMapping
-    public ResponseEntity deleteElement(HttpServletRequest request,
-                                        @RequestParam(name = "dashboardId") String dashboardIdStr,
-                                        @RequestParam(name = "type") String type,
-                                        @RequestParam(name = "elementId") String elementIdStr) {
+    public ResponseEntity<Object> deleteElement(HttpServletRequest request,
+                                                @RequestParam(name = "dashboardId") String dashboardIdStr,
+                                                @RequestParam(name = "elementId") String elementIdStr) {
         ProfileDTO profileDTO = checkSessionActive(request.getSession());
 
-        ElementType elementType;
-        try {
-            elementType = ElementType.valueOf(type.trim().toUpperCase());
-        } catch (IllegalArgumentException iae) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        Class classElement;
-        switch (elementType) {
-            case SONAR:
-            default:
-                classElement = SonarDTO.class;
-        }
-
-        this.elementService.deleteElement(profileDTO.getAuthentication().getProfileId(), Long.valueOf(dashboardIdStr),
-                Long.valueOf(elementIdStr), classElement);
+        this.elementService.deleteElement(profileDTO.getAuthentication().getProfileId(), Long.valueOf(dashboardIdStr), Long.valueOf(elementIdStr));
 
         return ResponseEntity.ok().build();
     }
 
     /**
      * Method to modify a sonar element in a dashboard
+     *
      * @param request
      * @param sonarDTO
      * @return
      */
-    @PostMapping("/sonar/modify")
-    public ResponseEntity<ElementDTO> modifySonarElement(HttpServletRequest request, @RequestBody SonarDTO sonarDTO) {
+    @PostMapping("/modify")
+    public ResponseEntity<SonarDTO> modifyElement(HttpServletRequest request, @RequestBody SonarDTO sonarDTO) {
         if (sonarDTO == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

@@ -1,6 +1,6 @@
-package com.dashboard.eleonore.element.dto;
+package com.dashboard.eleonore.element.sonar.dto;
 
-import com.dashboard.eleonore.element.repository.entity.SonarMetric;
+import com.dashboard.eleonore.element.sonar.repository.entity.SonarMetric;
 
 import java.io.Serializable;
 

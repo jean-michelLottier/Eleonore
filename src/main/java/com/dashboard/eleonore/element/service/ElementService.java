@@ -10,10 +10,9 @@ public interface ElementService<T extends ElementDTO> extends ElementsService {
      *
      * @param profileId
      * @param elementId
-     * @param type
      * @return
      */
-    Optional<T> getElement(Long profileId, Long elementId, Class<T> type);
+    Optional<T> getElement(Long profileId, Long elementId);
 
     /**
      * Method to save a dashboard element in database according to its type
@@ -38,9 +37,8 @@ public interface ElementService<T extends ElementDTO> extends ElementsService {
      * @param profileId
      * @param dashboardId
      * @param elementId
-     * @param elementType
      */
-    void deleteElement(Long profileId, Long dashboardId, Long elementId, Class<T> elementType);
+    void deleteElement(Long profileId, Long dashboardId, Long elementId);
 
     /**
      * Method to update a dashboard element in database according to its type

@@ -1,9 +1,8 @@
 package com.dashboard.eleonore.sonar.service;
 
-import com.dashboard.eleonore.element.dto.ElementDTO;
-import com.dashboard.eleonore.element.dto.SonarDTO;
-import com.dashboard.eleonore.element.dto.SonarMetricDTO;
 import com.dashboard.eleonore.element.service.ElementService;
+import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
+import com.dashboard.eleonore.element.sonar.dto.SonarMetricDTO;
 import com.dashboard.eleonore.http.HttpService;
 import com.dashboard.eleonore.sonar.ot.SonarOT;
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ public class SonarServiceImpl extends HttpService<SonarOT> implements SonarServi
     private static final Logger LOGGER = LoggerFactory.getLogger(SonarServiceImpl.class);
 
     @Autowired
-    private ElementService elementService;
+    private ElementService<SonarDTO> elementService;
 
     @Override
     public HttpResponse<SonarOT> getMeasuresComponent(Long profileId, Long sonarId) {
@@ -33,7 +32,7 @@ public class SonarServiceImpl extends HttpService<SonarOT> implements SonarServi
             return null;
         }
 
-        Optional<ElementDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId, SonarDTO.class);
+        Optional optionalElementDTO = this.elementService.getElement(profileId, sonarId);
         StringBuilder url = new StringBuilder();
         optionalElementDTO.ifPresent(elementDTO -> url.append(buildURL((SonarDTO) elementDTO)));
 
@@ -52,9 +51,9 @@ public class SonarServiceImpl extends HttpService<SonarOT> implements SonarServi
     @Override
     public CompletableFuture<ResponseEntity<SonarOT>> getMeasuresComponentAsync(Long profileId, Long sonarId,
                                                                                 Function<HttpResponse<SonarOT>, ResponseEntity<SonarOT>> callback) {
-        Optional<ElementDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId, SonarDTO.class);
+        Optional<SonarDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId);
         StringBuilder url = new StringBuilder();
-        optionalElementDTO.ifPresent(elementDTO -> url.append(buildURL((SonarDTO) elementDTO)));
+        optionalElementDTO.ifPresent(elementDTO -> url.append(buildURL(elementDTO)));
 
         var request = HttpRequest.newBuilder(URI.create(url.toString()))
                 .GET()
