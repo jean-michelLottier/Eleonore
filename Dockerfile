@@ -1,20 +1,12 @@
+FROM maven:3.6.3-jdk-11-slim AS build
+RUN mkdir -p /workspace
+WORKDIR /workspace
+COPY pom.xml /workspace
+COPY src /workspace/src
+RUN mvn -B -f pom.xml clean package -DskipTests
+
 FROM openjdk:11-slim
-
 LABEL maintainer="lottier.jm@protonmail.com"
-
 EXPOSE 8181 8000
-
-ENV APP_HOME /app
-ENV JAVA_OPTS=""
-
-RUN mkdir $APP_HOME &&\
-    mkdir $APP_HOME/config &&\
-    mkdir $APP_HOME/log
-
-VOLUME $APP_HOME/log
-VOLUME $APP_HOME/config
-
-WORKDIR $APP_HOME
-COPY /target/*.jar eleonore.jar
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar eleonore.jar"]
+COPY --from=build /workspace/target/*.jar eleonore.jar
+ENTRYPOINT ["sh", "-c", "java -Djava.security.egd=file:/dev/./urandom -jar eleonore.jar"]
