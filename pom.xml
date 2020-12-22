@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.5.RELEASE</version>
+        <version>2.4.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.dashboard.eleonore</groupId>
@@ -16,9 +16,10 @@
 
     <properties>
         <java.version>11</java.version>
-        <redis.version>2.1.8.RELEASE</redis.version>
-        <jedis.version>2.9.3</jedis.version>
+        <jedis.version>3.4.0</jedis.version>
         <sonar.version>3.6.0.1398</sonar.version>
+        <flyway.version>7.3.1</flyway.version>
+        <hibernate-validator.version>6.0.16.Final</hibernate-validator.version>
     </properties>
 
     <dependencies>
@@ -69,7 +70,6 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
-            <version>${redis.version}</version>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -80,6 +80,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator.version}</version>
         </dependency>
     </dependencies>
 
