@@ -16,10 +16,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <jedis.version>3.4.0</jedis.version>
         <sonar.version>3.6.0.1398</sonar.version>
-        <flyway.version>7.3.1</flyway.version>
-        <hibernate-validator.version>6.0.16.Final</hibernate-validator.version>
     </properties>
 
     <dependencies>
@@ -90,6 +87,12 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate-validator.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
     </dependencies>
 

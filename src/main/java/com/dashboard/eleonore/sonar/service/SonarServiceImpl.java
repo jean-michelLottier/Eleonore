@@ -3,74 +3,79 @@ package com.dashboard.eleonore.sonar.service;
 import com.dashboard.eleonore.element.service.ElementService;
 import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
 import com.dashboard.eleonore.element.sonar.dto.SonarMetricDTO;
-import com.dashboard.eleonore.http.HttpService;
 import com.dashboard.eleonore.sonar.ot.SonarOT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
+import java.util.concurrent.CompletionException;
 
-@Component
-public class SonarServiceImpl extends HttpService<SonarOT> implements SonarService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SonarServiceImpl.class);
+@Slf4j
+@Service
+public class SonarServiceImpl implements SonarService {
+    private final ElementService<SonarDTO> elementService;
 
-    @Autowired
-    private ElementService<SonarDTO> elementService;
+    public SonarServiceImpl(ElementService<SonarDTO> elementService) {
+        this.elementService = elementService;
+    }
 
     @Override
-    public HttpResponse<SonarOT> getMeasuresComponent(Long profileId, Long sonarId) {
+    public SonarOT getMeasuresComponent(Long profileId, Long sonarId) throws IOException, InterruptedException {
         if (profileId == null || sonarId == null) {
             return null;
         }
 
-        Optional optionalElementDTO = this.elementService.getElement(profileId, sonarId);
         StringBuilder url = new StringBuilder();
-        optionalElementDTO.ifPresent(elementDTO -> url.append(buildURL((SonarDTO) elementDTO)));
+        this.elementService.getElement(profileId, sonarId)
+                .ifPresent(elementDTO -> url.append(buildURL(elementDTO)));
 
         var request = HttpRequest.newBuilder(URI.create(url.toString()))
                 .GET()
                 .header("Content-Type", "application/json")
                 .build();
-        try {
-            return this.get(request);
-        } catch (IOException | InterruptedException e) {
-            LOGGER.error("Fail to get sonar metric information", e);
-            return null;
-        }
+
+        String body = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString()).body();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+
+        return new ObjectMapper().readValue(body, SonarOT.class);
     }
 
     @Override
-    public CompletableFuture<ResponseEntity<SonarOT>> getMeasuresComponentAsync(Long profileId, Long sonarId,
-                                                                                Function<HttpResponse<SonarOT>, ResponseEntity<SonarOT>> callback) {
+    public CompletableFuture<SonarOT> getMeasuresComponentAsync(Long profileId, Long sonarId) {
         Optional<SonarDTO> optionalElementDTO = this.elementService.getElement(profileId, sonarId);
         StringBuilder url = new StringBuilder();
         optionalElementDTO.ifPresent(elementDTO -> url.append(buildURL(elementDTO)));
 
+        if (StringUtils.isEmpty(url)) {
+            return CompletableFuture.failedFuture(new NullPointerException("Empty url"));
+        }
+
         var request = HttpRequest.newBuilder(URI.create(url.toString()))
                 .GET()
                 .header("Content-Type", "application/json")
                 .build();
 
-        return this.getAsync(request, callback);
-    }
-
-    @Override
-    public void POST(SonarOT body) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Class<SonarOT> getTClass() {
-        return SonarOT.class;
+        return HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenApply(body -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+                        return mapper.readValue(body, SonarOT.class);
+                    } catch (IOException ioe) {
+                        throw new CompletionException(ioe);
+                    }
+                });
     }
 
     private String buildURL(SonarDTO sonarDTO) {
