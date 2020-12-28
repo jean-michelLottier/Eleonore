@@ -1,12 +1,13 @@
 package com.dashboard.eleonore.dashboard.repository.entity;
 
-import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
 @Entity
 public class Dashboard {
     @Id
@@ -21,46 +22,4 @@ public class Dashboard {
 
     @Column(name = "modified_date", nullable = false)
     private LocalDateTime modifiedDate;
-
-    public Dashboard() {
-    }
-
-    public Dashboard(DashboardDTO dashboardDTO) {
-        this.id = dashboardDTO.getId();
-        this.name = dashboardDTO.getName();
-        this.createdDate = dashboardDTO.getCreatedDate();
-        this.modifiedDate = dashboardDTO.getModifiedDate();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getModifiedDate() {
-        return modifiedDate;
-    }
-
-    public void setModifiedDate(LocalDateTime modifiedDate) {
-        this.modifiedDate = modifiedDate;
-    }
 }

@@ -6,10 +6,10 @@ import com.dashboard.eleonore.dashboard.exception.DashboardNotFoundException;
 import com.dashboard.eleonore.dashboard.service.DashboardService;
 import com.dashboard.eleonore.BaseController;
 import com.dashboard.eleonore.profile.service.ProfileService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,12 +18,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/dashboard")
 public class DashboardController extends BaseController {
-    @Autowired
-    private DashboardService dashboardService;
+    private final DashboardService dashboardService;
 
     @Autowired
-    public DashboardController(ProfileService profileService) {
+    public DashboardController(ProfileService profileService, DashboardService dashboardService) {
         super(profileService);
+        this.dashboardService = dashboardService;
     }
 
     /**
@@ -103,7 +103,7 @@ public class DashboardController extends BaseController {
      * @return
      */
     @DeleteMapping
-    public ResponseEntity delete(HttpServletRequest request,
+    public ResponseEntity<Void> delete(HttpServletRequest request,
                                  @RequestParam(name = "id", required = false) String id,
                                  @RequestParam(name = "name", required = false) String name) {
         var profileDTO = checkSessionActive(request.getSession());

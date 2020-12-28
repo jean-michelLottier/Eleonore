@@ -2,35 +2,40 @@ package com.dashboard.eleonore.dashboard.service;
 
 import com.dashboard.eleonore.dashboard.dto.CustomerDTO;
 import com.dashboard.eleonore.dashboard.dto.DashboardDTO;
+import com.dashboard.eleonore.dashboard.mapper.CustomerMapper;
+import com.dashboard.eleonore.dashboard.mapper.DashboardMapper;
 import com.dashboard.eleonore.dashboard.repository.CustomerRepository;
 import com.dashboard.eleonore.dashboard.repository.DashboardRepository;
 import com.dashboard.eleonore.dashboard.repository.entity.Customer;
 import com.dashboard.eleonore.dashboard.repository.entity.Dashboard;
 import com.dashboard.eleonore.element.service.ElementsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
+@Service
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DashboardServiceImpl.class);
+    private final DashboardRepository dashboardRepository;
+    private final CustomerRepository customerRepository;
+    private final ElementsService elementsService;
+    private final DashboardMapper dashboardMapper;
+    private final CustomerMapper customerMapper;
 
-    @Autowired
-    private DashboardRepository dashboardRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private ElementsService elementsService;
+    public DashboardServiceImpl(DashboardRepository dashboardRepository, CustomerRepository customerRepository, ElementsService elementsService) {
+        this.dashboardRepository = dashboardRepository;
+        this.customerRepository = customerRepository;
+        this.elementsService = elementsService;
+        this.dashboardMapper = Mappers.getMapper(DashboardMapper.class);
+        this.customerMapper = Mappers.getMapper(CustomerMapper.class);
+    }
 
     @Override
     public DashboardDTO saveDashboard(DashboardDTO dashboardDTO) {
@@ -43,15 +48,15 @@ public class DashboardServiceImpl implements DashboardService {
             dashboardDTO.setModifiedDate(currentDateTime);
         }
 
-        Dashboard dashboard = this.dashboardRepository.save(new Dashboard(dashboardDTO));
+        Dashboard dashboard = this.dashboardRepository.save(this.dashboardMapper.dashboardDTOToDashboard(dashboardDTO));
 
-        return new DashboardDTO(dashboard);
+        return this.dashboardMapper.dashboardToDashboardDTO(dashboard);
     }
 
     @Override
     public void deleteDashboard(Long id, Long profileId) {
         if (id == null || profileId == null) {
-            LOGGER.warn("eleonore - Impossible to delete a dashboard if the dashboard id and/or the profile id is/are null");
+            log.warn("eleonore - Impossible to delete a dashboard if the dashboard id and/or the profile id is/are null");
             return;
         }
 
@@ -67,7 +72,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Transactional
     public void deleteDashboard(String name, Long profileId) {
         if (StringUtils.isEmpty(name) || profileId == null) {
-            LOGGER.warn("eleonore - Impossible to delete a dashboard if the dashboard name and/or the profile id is/are null");
+            log.warn("eleonore - Impossible to delete a dashboard if the dashboard name and/or the profile id is/are null");
             return;
         }
 
@@ -84,7 +89,7 @@ public class DashboardServiceImpl implements DashboardService {
         var optionalDashboard = this.dashboardRepository.findById(id, profileId);
         DashboardDTO dashboardDTO = null;
         if (optionalDashboard.isPresent()) {
-            dashboardDTO = new DashboardDTO(optionalDashboard.get());
+            dashboardDTO = this.dashboardMapper.dashboardToDashboardDTO(optionalDashboard.get());
             dashboardDTO.setElements(this.elementsService.getElements(dashboardDTO.getId()));
         }
 
@@ -96,7 +101,7 @@ public class DashboardServiceImpl implements DashboardService {
         var optionalDashboard = this.dashboardRepository.findByName(name, profileId);
         DashboardDTO dashboardDTO = null;
         if (optionalDashboard.isPresent()) {
-            dashboardDTO = new DashboardDTO(optionalDashboard.get());
+            dashboardDTO = this.dashboardMapper.dashboardToDashboardDTO(optionalDashboard.get());
             dashboardDTO.setElements(this.elementsService.getElements(dashboardDTO.getId()));
         }
 
@@ -107,15 +112,15 @@ public class DashboardServiceImpl implements DashboardService {
     public List<DashboardDTO> getDashboards(Long profileId) {
         return this.dashboardRepository.findAllByProfileId(profileId)
                 .stream()
-                .map(DashboardDTO::new)
+                .map(this.dashboardMapper::dashboardToDashboardDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
-        Customer customer = this.customerRepository.save(new Customer(customerDTO));
+        Customer customer = this.customerRepository.save(this.customerMapper.customerDTOToCustomer(customerDTO));
 
-        return new CustomerDTO(customer);
+        return this.customerMapper.customerToCustomerDTO(customer);
     }
 
     //////////////////////////////////////////////////////////
@@ -140,10 +145,10 @@ public class DashboardServiceImpl implements DashboardService {
             else if (optionalCustomer.isPresent() && optionalCustomer.get().isOwner()) {
                 List<CustomerDTO> customerDTOList = customers.stream()
                         .filter(customer -> !profileId.equals(customer.getProfileId()))
-                        .map(CustomerDTO::new)
+                        .map(this.customerMapper::customerToCustomerDTO)
                         .collect(Collectors.toList());
                 // First each customer is associated with a copy of the removal shared dashboard
-                copyDashboard(new DashboardDTO(dashboard), customerDTOList);
+                copyDashboard(this.dashboardMapper.dashboardToDashboardDTO(dashboard), customerDTOList);
                 // Then removal dashboard elements are deleted
                 this.elementsService.deleteElements(dashboard.getId());
                 // And removal dashboard customers too
@@ -159,14 +164,15 @@ public class DashboardServiceImpl implements DashboardService {
             dashboardDTO.setId(null);
         }
 
-        customerDTOList.stream().forEach(customerDTO -> {
-            var dashboardCopy = this.dashboardRepository.save(new Dashboard(dashboardDTO));
+        customerDTOList.forEach(customerDTO -> {
+            var dashboardCopy = this.dashboardRepository.save(
+                    this.dashboardMapper.dashboardDTOToDashboard(dashboardDTO));
             customerDTO.setId(null);
             customerDTO.setOwner(true);
             customerDTO.setEditable(true);
             var dashboardIdOriginal = customerDTO.getDashboardId();
             customerDTO.setDashboardId(dashboardCopy.getId());
-            this.customerRepository.save(new Customer(customerDTO));
+            this.customerRepository.save(this.customerMapper.customerDTOToCustomer(customerDTO));
             this.elementsService.copyDashboardElements(dashboardIdOriginal, dashboardCopy.getId());
         });
     }
