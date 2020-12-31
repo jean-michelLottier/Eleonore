@@ -1,16 +1,15 @@
 package com.dashboard.eleonore.element.sonar.repository.entity;
 
-import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
-import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
+@NoArgsConstructor
 @Entity
 public class Sonar {
     @Id
@@ -29,60 +28,6 @@ public class Sonar {
 
     @OneToMany(mappedBy = "sonar", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SonarMetric> metrics;
-
-    public Sonar() {
-    }
-
-    public Sonar(SonarDTO sonarDTO) {
-        this.id = sonarDTO.getId();
-        this.url = sonarDTO.getUrl();
-        this.projectName = sonarDTO.getProjectName();
-        this.projectKey = sonarDTO.getProjectKey();
-        if (!CollectionUtils.isEmpty(sonarDTO.getSonarMetrics())) {
-            this.metrics = sonarDTO.getSonarMetrics().stream().map(SonarMetric::new).collect(Collectors.toSet());
-            this.metrics.forEach(sonarMetric -> sonarMetric.setSonar(this));
-        }
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    public String getProjectKey() {
-        return projectKey;
-    }
-
-    public void setProjectKey(String projectKey) {
-        this.projectKey = projectKey;
-    }
-
-    public Set<SonarMetric> getMetrics() {
-        return metrics;
-    }
-
-    public void setMetrics(Set<SonarMetric> metrics) {
-        this.metrics = metrics;
-    }
 
     @Override
     public int hashCode() {

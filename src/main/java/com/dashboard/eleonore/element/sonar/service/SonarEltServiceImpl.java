@@ -1,18 +1,21 @@
 package com.dashboard.eleonore.element.sonar.service;
 
 import com.dashboard.eleonore.element.dto.ElementDTO;
+import com.dashboard.eleonore.element.repository.ComponentRepository;
+import com.dashboard.eleonore.element.repository.entity.Component;
+import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.service.ElementService;
 import com.dashboard.eleonore.element.service.ElementServiceImpl;
 import com.dashboard.eleonore.element.sonar.dto.SonarDTO;
 import com.dashboard.eleonore.element.sonar.dto.SonarMetricDTO;
-import com.dashboard.eleonore.element.repository.ComponentRepository;
+import com.dashboard.eleonore.element.sonar.mapper.SonarMapper;
+import com.dashboard.eleonore.element.sonar.mapper.SonarMetricMapper;
 import com.dashboard.eleonore.element.sonar.repository.SonarMetricRepository;
 import com.dashboard.eleonore.element.sonar.repository.SonarRepository;
-import com.dashboard.eleonore.element.repository.entity.ElementType;
 import com.dashboard.eleonore.element.sonar.repository.entity.Sonar;
 import com.dashboard.eleonore.element.sonar.repository.entity.SonarMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,22 +26,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class SonarEltServiceImpl extends ElementServiceImpl implements ElementService<SonarDTO> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SonarEltServiceImpl.class);
+    private final SonarRepository sonarRepository;
+    private final SonarMetricRepository sonarMetricRepository;
+    private final ComponentRepository componentRepository;
+    private final SonarMetricMapper sonarMetricMapper;
+    private final SonarMapper sonarMapper;
 
     @Autowired
-    private SonarRepository sonarRepository;
-
-    @Autowired
-    private SonarMetricRepository sonarMetricRepository;
-
-    private ComponentRepository componentRepository;
-
-    @Autowired
-    public SonarEltServiceImpl(ComponentRepository componentRepository) {
+    public SonarEltServiceImpl(ComponentRepository componentRepository, SonarRepository sonarRepository,
+                               SonarMetricRepository sonarMetricRepository) {
         super(componentRepository);
 
         this.componentRepository = componentRepository;
+        this.sonarRepository = sonarRepository;
+        this.sonarMetricRepository = sonarMetricRepository;
+        this.sonarMetricMapper = Mappers.getMapper(SonarMetricMapper.class);
+        this.sonarMapper = Mappers.getMapper(SonarMapper.class);
     }
 
     @Override
@@ -46,7 +51,7 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
     public void deleteElements(Long dashboardId) {
         var components = this.componentRepository.findAllDashboardComponents(dashboardId);
 
-        LOGGER.info("eleonore - Removing {} sonar element(s) for dashboard {}", components.size(), dashboardId);
+        log.info("eleonore - Removing {} sonar element(s) for dashboard {}", components.size(), dashboardId);
         components.stream().filter(component -> ElementType.SONAR.equals(component.getType()))
                 .forEach(component -> this.sonarRepository.deleteById(component.getElementId()));
     }
@@ -57,13 +62,13 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
             return;
         }
 
-        LOGGER.info("eleonore - Copying Sonar elements from dashboard {} to dashboard {}", dashboardIdOriginal, dashboardIdCopy);
+        log.info("eleonore - Copying Sonar elements from dashboard {} to dashboard {}", dashboardIdOriginal, dashboardIdCopy);
         List<Sonar> sonarOriginalList = this.sonarRepository.findAllByDashboardId(dashboardIdOriginal);
 
-        sonarOriginalList.stream().map(SonarDTO::new).forEach(sonarDTO -> {
+        sonarOriginalList.stream().map(this.sonarMapper::sonarToSonarDTO).forEach(sonarDTO -> {
             sonarDTO.setId(null);
-            Sonar sonarCopy = this.sonarRepository.save(new Sonar(sonarDTO));
-            com.dashboard.eleonore.element.repository.entity.Component component = new com.dashboard.eleonore.element.repository.entity.Component();
+            Sonar sonarCopy = this.sonarRepository.save(this.sonarMapper.sonarDTOToSonar(sonarDTO));
+            Component component = new Component();
             component.setDashboardId(dashboardIdCopy);
             component.setElementId(sonarCopy.getId());
             component.setType(ElementType.SONAR);
@@ -81,7 +86,7 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
 
         Optional<Sonar> optionalSonar = this.sonarRepository.find(profileId, elementId);
         if (optionalSonar.isPresent()) {
-            elementDTO = new SonarDTO(optionalSonar.get());
+            elementDTO = this.sonarMapper.sonarToSonarDTO(optionalSonar.get());
         }
 
         return Optional.ofNullable(elementDTO);
@@ -91,7 +96,7 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
     public List<ElementDTO> getElements(Long dashboardId) {
         return this.sonarRepository.findAllByDashboardId(dashboardId)
                 .stream()
-                .map(SonarDTO::new)
+                .map(this.sonarMapper::sonarToSonarDTO)
                 .collect(Collectors.toList());
     }
 
@@ -101,9 +106,9 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
             return Optional.empty();
         }
 
-        LOGGER.info("eleonore - Adding sonar element for dashboard {}", dashboardId);
-        Sonar sonar = this.sonarRepository.save(new Sonar((SonarDTO) elementDTO));
-        SonarDTO savedElementDTO = new SonarDTO(sonar);
+        log.info("eleonore - Adding sonar element for dashboard {}", dashboardId);
+        Sonar sonar = this.sonarRepository.save(this.sonarMapper.sonarDTOToSonar(elementDTO));
+        SonarDTO savedElementDTO = this.sonarMapper.sonarToSonarDTO(sonar);
 
         // If the saved element is new then it is linked with the given dashboard (defined by its id)
         if (elementDTO.getId() == null) {
@@ -121,8 +126,8 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
         }
 
         // Step 1: delete the element in database
-        LOGGER.info("eleonore - Removing sonar element {}", elementDTO.getId());
-        this.sonarRepository.delete(new Sonar(elementDTO));
+        log.info("eleonore - Removing sonar element {}", elementDTO.getId());
+        this.sonarRepository.delete(this.sonarMapper.sonarDTOToSonar(elementDTO));
 
         // Step 2: delete the component in database
         this.componentRepository.deleteDashboardComponent(dashboardId, elementDTO.getId(), elementDTO.getType());
@@ -136,7 +141,7 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
         }
 
         // Step 1: delete the element in database
-        LOGGER.info("eleonore - Removing sonar element {}", elementId);
+        log.info("eleonore - Removing sonar element {}", elementId);
         this.sonarMetricRepository.deleteSonarMetrics(profileId, dashboardId, elementId);
         this.sonarRepository.delete(profileId, dashboardId, elementId);
 
@@ -151,18 +156,19 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
             return Optional.empty();
         }
 
-        LOGGER.info("eleonore - Updating sonar element {}", elementDTO.getId());
-        Sonar sonar = new Sonar(elementDTO);
+        log.info("eleonore - Updating sonar element {}", elementDTO.getId());
+        Sonar sonar = this.sonarMapper.sonarDTOToSonar(elementDTO);
         // Step 1: Delete all unselected metrics
         List<SonarMetricDTO> currentMetrics = this.sonarMetricRepository.findSonarMetricsBySonarId(
-                sonar.getId()).stream().map(SonarMetricDTO::new).collect(Collectors.toList());
+                sonar.getId()).stream().map(this.sonarMetricMapper::sonarMetricToSonarMetricDTO).collect(Collectors.toList());
         List<SonarMetricDTO> currentMetricsToDelete = currentMetrics.stream()
                 .filter(currentMetric -> sonar.getMetrics().stream()
                         .noneMatch(selectedMetric -> selectedMetric.getMetric().equals(currentMetric.getMetric())))
                 .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(currentMetricsToDelete)) {
             this.sonarMetricRepository.deleteAll(
-                    currentMetricsToDelete.stream().map(SonarMetric::new).collect(Collectors.toList())
+                    currentMetricsToDelete.stream().map(this.sonarMetricMapper::sonarMetricDTOToSonarMetric)
+                            .collect(Collectors.toList())
             );
         }
 
@@ -176,7 +182,7 @@ public class SonarEltServiceImpl extends ElementServiceImpl implements ElementSe
                         )
                 );
         // Step 3: Save sonar
-        elementDTO = new SonarDTO(this.sonarRepository.save(sonar));
+        elementDTO = this.sonarMapper.sonarToSonarDTO(this.sonarRepository.save(sonar));
 
         return Optional.of(elementDTO);
     }

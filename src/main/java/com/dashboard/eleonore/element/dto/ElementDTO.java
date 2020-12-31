@@ -1,9 +1,13 @@
 package com.dashboard.eleonore.element.dto;
 
 import com.dashboard.eleonore.element.repository.entity.ElementType;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+@Data
+@NoArgsConstructor
 public abstract class ElementDTO implements Serializable {
 
     private static final long serialVersionUID = -6072357671297457056L;
@@ -15,12 +19,4 @@ public abstract class ElementDTO implements Serializable {
     }
 
     public abstract ElementType getType();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

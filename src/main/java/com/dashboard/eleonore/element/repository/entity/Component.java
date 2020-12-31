@@ -1,12 +1,13 @@
 package com.dashboard.eleonore.element.repository.entity;
 
-import com.dashboard.eleonore.element.dto.ComponentDTO;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class Component {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,46 +22,4 @@ public class Component {
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ElementType type;
-
-    public Component() {
-    }
-
-    public Component(ComponentDTO componentDTO) {
-        this.id = componentDTO.getId();
-        this.dashboardId = componentDTO.getDashboardId();
-        this.elementId = componentDTO.getElementId();
-        this.type = componentDTO.getType();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getDashboardId() {
-        return dashboardId;
-    }
-
-    public void setDashboardId(Long dashboardId) {
-        this.dashboardId = dashboardId;
-    }
-
-    public Long getElementId() {
-        return elementId;
-    }
-
-    public void setElementId(Long elementId) {
-        this.elementId = elementId;
-    }
-
-    public ElementType getType() {
-        return type;
-    }
-
-    public void setType(ElementType type) {
-        this.type = type;
-    }
 }

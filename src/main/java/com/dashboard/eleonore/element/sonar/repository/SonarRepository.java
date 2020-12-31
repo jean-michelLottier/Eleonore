@@ -10,17 +10,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SonarRepository extends JpaRepository<Sonar, Long> {
-    @Query("select s from Sonar s where s.id in (select cpt.elementId from Component cpt where cpt.dashboardId = :dashboardId and cpt.type = 'SONAR')")
+    @Query("select s from Sonar s where s.id in (select cpt.elementId from Component cpt where cpt.dashboardId = :dashboardId " +
+            "and cpt.type = com.dashboard.eleonore.element.repository.entity.ElementType.SONAR)")
     List<Sonar> findAllByDashboardId(@Param("dashboardId") Long dashboardId);
 
     @Modifying
     @Query("delete from Sonar s where s.id = (\n" +
-            "select c.elementId from Component c where c.elementId = :elementId and c.dashboardId = (\n" +
-            "select cst.dashboardId from Customer cst where cst.profileId = :profileId and cst.dashboardId = :dashboardId and cst.editable=1))")
+            "select c.elementId from Component c where c.elementId = :elementId and c.type = com.dashboard.eleonore.element.repository.entity.ElementType.SONAR " +
+            "and c.dashboardId = (select cst.dashboardId from Customer cst where cst.profileId = :profileId and cst.dashboardId = :dashboardId and cst.editable=true))")
     void delete(@Param("profileId") Long profileId, @Param("dashboardId") Long dashboardId, @Param("elementId") Long elementId);
 
     @Query("select s from Sonar s where s.id = (\n" +
-            "select c.elementId from Component c where c.elementId = :elementId and c.dashboardId in (\n" +
-            "select cst.dashboardId from Customer cst where cst.profileId = :profileId))")
+            "select c.elementId from Component c where c.elementId = :elementId and c.type = com.dashboard.eleonore.element.repository.entity.ElementType.SONAR " +
+            "and c.dashboardId in (select cst.dashboardId from Customer cst where cst.profileId = :profileId))")
     Optional<Sonar> find(@Param("profileId") Long profileId, @Param("elementId") Long elementId);
 }
