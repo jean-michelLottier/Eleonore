@@ -1,16 +1,14 @@
 package com.dashboard.eleonore.profile;
 
 import com.dashboard.eleonore.profile.service.ProfileService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class ProfileScheduler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileScheduler.class);
-
     @Autowired
     private ProfileService profileService;
 
@@ -25,9 +23,9 @@ public class ProfileScheduler {
         return Holder.profileScheduler;
     }
 
-    @Scheduled(fixedDelay = 1000l * 60 * 15)
+    @Scheduled(fixedDelay = 1000L * 60 * 15)
     public void runTokenCleaner() {
-        LOGGER.info("eleonore - Running authentication token cleaner");
+        log.info("eleonore - Running authentication token cleaner");
         this.profileService.cleanInvalidToken();
     }
 }

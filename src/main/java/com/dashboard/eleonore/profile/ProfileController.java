@@ -2,12 +2,12 @@ package com.dashboard.eleonore.profile;
 
 import com.dashboard.eleonore.BaseController;
 import com.dashboard.eleonore.profile.dto.AuthenticationDTO;
+import com.dashboard.eleonore.profile.dto.ProfileDTO;
 import com.dashboard.eleonore.profile.dto.UserDTO;
 import com.dashboard.eleonore.profile.repository.entity.ProfileType;
 import com.dashboard.eleonore.profile.service.ProfileService;
 import com.dashboard.eleonore.profile.service.ProfileServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
+import java.util.Collections;
 
 @RestController
+@Slf4j
 public class ProfileController extends BaseController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileController.class);
 
     @Autowired
     public ProfileController(ProfileService profileService) {
@@ -36,14 +36,14 @@ public class ProfileController extends BaseController {
      * @return
      */
     @PostMapping(value = "/login", consumes = "application/json")
-    public ResponseEntity login(HttpServletRequest request, @RequestBody AuthenticationDTO authenticationDTO) {
-        LOGGER.info("eleonore - Attempt for login");
+    public ResponseEntity<ProfileDTO> login(HttpServletRequest request, @RequestBody AuthenticationDTO authenticationDTO) {
+        log.info("eleonore - Attempt for login");
         if (request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY) != null) {
-            LOGGER.info("eleonore - User already logged in");
+            log.info("eleonore - User already logged in");
             return ResponseEntity.ok().build();
         }
 
-        ResponseEntity response = null;
+        ResponseEntity<ProfileDTO> response;
         var optionalAuth = getProfileService().getAuthentication(authenticationDTO.getLogin(), authenticationDTO.getPassword());
         if (optionalAuth.isPresent()) {
             var authentication = optionalAuth.get();
@@ -55,7 +55,7 @@ public class ProfileController extends BaseController {
             getProfileService().saveToken(authentication, token);
 
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setAccessControlExposeHeaders(Arrays.asList("X-Auth-Token"));
+            httpHeaders.setAccessControlExposeHeaders(Collections.singletonList("X-Auth-Token"));
             httpHeaders.setAccessControlAllowCredentials(true);
 
             if (optionalProfileDTO.isPresent()) {
@@ -77,8 +77,8 @@ public class ProfileController extends BaseController {
      * @return
      */
     @GetMapping("/logout")
-    public ResponseEntity logout(HttpServletRequest request) {
-        LOGGER.info("eleonore - Attempt for logout");
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        log.info("eleonore - Attempt for logout");
         if (request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY) != null) {
             getProfileService().deleteToken((String) request.getSession().getAttribute(ProfileServiceImpl.AUTH_TOKEN_KEY));
             request.getSession().invalidate();
@@ -94,8 +94,8 @@ public class ProfileController extends BaseController {
      * @return
      */
     @PostMapping(value = "/user/create", consumes = "application/json")
-    public ResponseEntity createUser(HttpServletRequest request, @RequestBody UserDTO user) {
-        LOGGER.info("eleonore - Attempt for user creation");
+    public ResponseEntity<ProfileDTO> createUser(HttpServletRequest request, @RequestBody UserDTO user) {
+        log.info("eleonore - Attempt for user creation");
         // TODO : Check if the user already exists
         return ResponseEntity.ok(getProfileService().saveProfile(user, ProfileType.USER));
     }

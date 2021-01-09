@@ -3,6 +3,8 @@ package com.dashboard.eleonore.profile.service;
 import com.dashboard.eleonore.profile.dto.ProfileDTO;
 import com.dashboard.eleonore.profile.dto.UserDTO;
 import com.dashboard.eleonore.profile.factory.ProfileFactory;
+import com.dashboard.eleonore.profile.mapper.AuthenticationMapper;
+import com.dashboard.eleonore.profile.mapper.UserMapper;
 import com.dashboard.eleonore.profile.repository.AuthTokenRepository;
 import com.dashboard.eleonore.profile.repository.AuthenticationRepository;
 import com.dashboard.eleonore.profile.repository.UserRepository;
@@ -10,33 +12,37 @@ import com.dashboard.eleonore.profile.repository.entity.AuthToken;
 import com.dashboard.eleonore.profile.repository.entity.Authentication;
 import com.dashboard.eleonore.profile.repository.entity.ProfileType;
 import com.dashboard.eleonore.profile.repository.entity.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
+@Service
+@Slf4j
 public class ProfileServiceImpl implements ProfileService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileServiceImpl.class);
     public static final String AUTH_TOKEN_KEY = "eleonore_auth_token";
-    public static final long AUTH_TOKEN_TIMEOUT = 30l;
+    public static final long AUTH_TOKEN_TIMEOUT = 30L;
 
-    @Autowired
-    private AuthenticationRepository authenticationRepository;
+    private final AuthenticationRepository authenticationRepository;
+    private final AuthTokenRepository authTokenRepository;
+    private final UserRepository userRepository;
+    private final AuthenticationMapper authenticationMapper;
+    private final UserMapper userMapper;
 
-    @Autowired
-    private AuthTokenRepository authTokenRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public ProfileServiceImpl(AuthenticationRepository authenticationRepository, AuthTokenRepository authTokenRepository, UserRepository userRepository) {
+        this.authenticationRepository = authenticationRepository;
+        this.authTokenRepository = authTokenRepository;
+        this.userRepository = userRepository;
+        this.authenticationMapper = Mappers.getMapper(AuthenticationMapper.class);
+        this.userMapper = Mappers.getMapper(UserMapper.class);
+    }
 
     @Override
     public boolean isValidAuthentication(Authentication authentication) {
@@ -91,8 +97,8 @@ public class ProfileServiceImpl implements ProfileService {
             if (token.getModifiedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isAfter(currentDateTime)) {
                 tokenValid = true;
                 // If the token is soon expired then the modified date is updated
-                if (token.getModifiedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isBefore(currentDateTime.plusMinutes(5l))) {
-                    LOGGER.info("eleonore - Token {} almost expired, its modified date is updated", token.getId());
+                if (token.getModifiedDateTime().plusMinutes(AUTH_TOKEN_TIMEOUT).isBefore(currentDateTime.plusMinutes(5L))) {
+                    log.info("eleonore - Token {} almost expired, its modified date is updated", token.getId());
                     token.setModifiedDateTime(currentDateTime);
                     this.authTokenRepository.save(token);
                 }
@@ -107,8 +113,8 @@ public class ProfileServiceImpl implements ProfileService {
         ProfileDTO savedProfileDTO = null;
         switch (profileType) {
             case USER:
-                User user = this.userRepository.save(new User((UserDTO) profileDTO));
-                savedProfileDTO = new UserDTO(user);
+                User user = this.userRepository.save(this.userMapper.userDTOToUser((UserDTO) profileDTO));
+                savedProfileDTO = this.userMapper.userToUserDTO(user);
                 profileDTO.getAuthentication().setProfileId(user.getId());
                 break;
             case PROJECT:
@@ -116,7 +122,7 @@ public class ProfileServiceImpl implements ProfileService {
             default:
         }
 
-        this.authenticationRepository.save(new Authentication(profileDTO.getAuthentication()));
+        this.authenticationRepository.save(this.authenticationMapper.authenticationDTOToAuthentication(profileDTO.getAuthentication()));
 
         return savedProfileDTO;
     }
@@ -128,7 +134,7 @@ public class ProfileServiceImpl implements ProfileService {
                 UserDTO userDTO = null;
                 Optional<User> optionalUser = this.userRepository.findById(id);
                 if (optionalUser.isPresent()) {
-                    userDTO = new UserDTO(optionalUser.get());
+                    userDTO = this.userMapper.userToUserDTO(optionalUser.get());
                 }
                 return Optional.ofNullable(userDTO);
             case PROJECT:
@@ -161,7 +167,7 @@ public class ProfileServiceImpl implements ProfileService {
                 .collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(removalAuthTokens)) {
-            LOGGER.info("eleonore - Auto clean {} invalid authentication tokens", removalAuthTokens.size());
+            log.info("eleonore - Auto clean {} invalid authentication tokens", removalAuthTokens.size());
             this.authTokenRepository.deleteAll(removalAuthTokens);
         }
     }

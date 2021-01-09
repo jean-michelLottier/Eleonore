@@ -27,44 +27,4 @@ public class AuthToken implements Serializable {
 
     @Column(name = "modified_date")
     private LocalDateTime modifiedDateTime;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getAuthenticationId() {
-        return authenticationId;
-    }
-
-    public void setAuthenticationId(Long authenticationId) {
-        this.authenticationId = authenticationId;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public LocalDateTime getCreatedDateTime() {
-        return createdDateTime;
-    }
-
-    public void setCreatedDateTime(LocalDateTime createdDateTime) {
-        this.createdDateTime = createdDateTime;
-    }
-
-    public LocalDateTime getModifiedDateTime() {
-        return modifiedDateTime;
-    }
-
-    public void setModifiedDateTime(LocalDateTime modifiedDateTime) {
-        this.modifiedDateTime = modifiedDateTime;
-    }
 }
